@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLS Wage Lookup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 2rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
+  .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+  select, input { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
+  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #333; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
+  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; }
+  td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; }
+  tr:hover td { background: #f9f9f9; }
+  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
+  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
+  .hidden { display: none; }
+  .live-badge { display: inline-block; font-size: 11px; padding: 2px 8px; background: #e6f4ea; color: #2d6a4f; border-radius: 6px; margin-left: 8px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<h1>BLS Industry Wage Lookup <span class="live-badge">Live Data</span></h1>
+
+<div class="card">
+  <div class="row">
+    <select id="industrySelect">
+      <option value="000000">All industries</option>
+      <option value="110000">Agriculture, forestry, fishing</option>
+      <option value="210000">Mining, quarrying, oil and gas</option>
+      <option value="230000">Construction</option>
+      <option value="310000">Manufacturing</option>
+      <option value="420000">Wholesale trade</option>
+      <option value="440000">Retail trade</option>
+      <option value="480000">Transportation and warehousing</option>
+      <option value="510000">Information</option>
+      <option value="520000">Finance and insurance</option>
+      <option value="530000">Real estate</option>
+      <option value="540000">Professional and technical services</option>
+      <option value="550000">Management of companies</option>
+      <option value="560000">Administrative and waste services</option>
+      <option value="610000">Educational services</option>
+      <option value="620000">Health care and social assistance</option>
+      <option value="710000">Arts, entertainment, recreation</option>
+      <option value="720000">Accommodation and food services</option>
+      <option value="810000">Other services</option>
+      <option value="900000">Government</option>
+    </select>
+    <input type="text" id="occSearch" placeholder="Search occupation e.g. accountant, nurse" />
+    <button id="lookupBtn">Look up wages</button>
+  </div>
+  <div id="errorMsg" class="error hidden"></div>
+  <div id="statusMsg" class="status hidden"></div>
+</div>
+
+<div id="summarySection" class="hidden">
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Occupations found</div>
+      <div class="metric-value" id="occCount">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Average mean wage</div>
+      <div class="metric-value" id="avgWage">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total employment</div>
+      <div class="metric-value" id="totalEmp">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Data period</div>
+      <div class="metric-value" id="dataPeriod" style="font-size:16px;">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Occupation</th>
+          <th>SOC code</th>
+          <th style="text-align:right;">Mean annual wage</th>
+          <th style="text-align:right;">Total employment</th>
+        </tr>
+      </thead>
+      <tbody id="occTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const SOC_NAMES = {
+  '000000': 'All occupations',
+  '110000': 'Management occupations',
+  '130000': 'Business and financial operations',
+  '150000': 'Computer and mathematical',
+  '170000': 'Architecture and engineering',
+  '190000': 'Life, physical, and social science',
+  '210000': 'Community and social service',
+  '230000': 'Legal occupations',
+  '250000': 'Educational instruction and library',
+  '270000': 'Arts, design, entertainment, sports',
+  '290000': 'Healthcare practitioners and technical',
+  '310000': 'Healthcare support',
+  '330000': 'Protective service',
+  '350000': 'Food preparation and serving',
+  '370000': 'Building and grounds cleaning',
+  '390000': 'Personal care and service',
+  '410000': 'Sales and related',
+  '430000': 'Office and administrative support',
+  '450000': 'Farming, fishing, and forestry',
+  '470000': 'Construction and extraction',
+  '490000': 'Installation, maintenance, and repair',
+  '510000': 'Production occupations',
+  '530000': 'Transportation and material moving',
+};
+
+function fmt(val) {
+  if (!val || val === '-') return '—';
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtEmp(val) {
+  if (!val || val === '-') return '—';
+  const n = Number(val) * 1000;
+  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+  if (n >= 1000) return Math.round(n / 1000) + 'K';
+  return n.toLocaleString();
+}
+
+async function fetchWages() {
+  const industry = document.getElementById('industrySelect').value;
+  const search = document.getElementById('occSearch').value.trim().toLowerCase();
+
+  document.getElementById('errorMsg').classList.add('hidden');
+  document.getElementById('summarySection').classList.add('hidden');
+  document.getElementById('statusMsg').classList.remove('hidden');
+  document.getElementById('statusMsg').textContent = 'Fetching live data from BLS — this may take a few seconds...';
+
+  try {
+    const res = await fetch(`/api/wages?industry=${industry}`);
+    const data = await res.json();
+
+    if (data.error) {
+      document.getElementById('statusMsg').classList.add('hidden');
+      document.getElementById('errorMsg').textContent = 'BLS API error: ' + data.error;
+      document.getElementById('errorMsg').classList.remove('hidden');
+      return;
+    }
+
+    document.getElementById('statusMsg').classList.add('hidden');
+
+    let results = data.results.filter(r => r.latestValue && r.latestValue !== '-');
+
+    if (search) {
+      results = results.filter(r => {
+        const socCode = r.seriesId.slice(-6);
+        const name = SOC_NAMES[socCode] || '';
+        return name.toLowerCase().includes(search);
+      });
+    }
+
+    if (results.length === 0) {
+      document.getElementById('errorMsg').textContent = 'No occupations matched your search. Try a broader term or select All industries.';
+      document.getElementById('errorMsg').classList.remove('hidden');
+      return;
+    }
+
+    const wages = results.map(r => Number(r.latestValue)).filter(w => w > 0);
+    const avgWage = wages.length ? Math.round(wages.reduce((a, b) => a + b, 0) / wages.length) : 0;
+    const period = results[0].period || 'Latest available';
+
+    document.getElementById('occCount').textContent = results.length;
+    document.getElementById('avgWage').textContent = fmt(avgWage);
+    document.getElementById('totalEmp').textContent = 'See table';
+    document.getElementById('dataPeriod').textContent = period;
+    document.getElementById('summarySection').classList.remove('hidden');
+
+    const tbody = document.getElementById('occTableBody');
+    tbody.innerHTML = results.map(r => {
+      const socCode = r.seriesId.slice(-6);
+      const name = SOC_NAMES[socCode] || socCode;
+      return `
+        <tr>
+          <td>${name}</td>
+          <td style="color:#666; font-size:13px;">${socCode}</td>
+          <td style="text-align:right; font-weight:500;">${fmt(r.latestValue)}</td>
+          <td style="text-align:right;">—</td>
+        </tr>
+      `;
+    }).join('');
+
+  } catch(e) {
+    document.getElementById('statusMsg').classList.add('hidden');
+    document.getElementById('errorMsg').textContent = 'Could not connect to BLS. Check your API key in Vercel environment variables.';
+    document.getElementById('errorMsg').classList.remove('hidden');
+  }
+}
+
+document.getElementById('lookupBtn').addEventListener('click', fetchWages);
+</script>
+</body>
+</html>
