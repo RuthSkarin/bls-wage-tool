@@ -1,13 +1,9 @@
 {
   "version": 2,
-  "routes": [
-    {
-      "src": "/api/wages",
-      "dest": "/api/wages.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
+  "functions": {
+    "api/wages.js": {
+      "memory": 128,
+      "maxDuration": 10
     }
-  ]
+  }
 }
