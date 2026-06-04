@@ -1,33 +1,30 @@
 export default async function handler(req, res) {
   const apiKey = process.env.BLS_API_KEY;
-  const { industry } = req.query;
-
-  const industryCode = industry || '000000';
 
   const seriesIds = [
-    `OEUM${industryCode}000000`,
-    `OEUM${industryCode}110000`,
-    `OEUM${industryCode}130000`,
-    `OEUM${industryCode}150000`,
-    `OEUM${industryCode}170000`,
-    `OEUM${industryCode}190000`,
-    `OEUM${industryCode}210000`,
-    `OEUM${industryCode}230000`,
-    `OEUM${industryCode}250000`,
-    `OEUM${industryCode}270000`,
-    `OEUM${industryCode}290000`,
-    `OEUM${industryCode}310000`,
-    `OEUM${industryCode}330000`,
-    `OEUM${industryCode}350000`,
-    `OEUM${industryCode}370000`,
-    `OEUM${industryCode}390000`,
-    `OEUM${industryCode}410000`,
-    `OEUM${industryCode}430000`,
-    `OEUM${industryCode}450000`,
-    `OEUM${industryCode}470000`,
-    `OEUM${industryCode}490000`,
-    `OEUM${industryCode}510000`,
-    `OEUM${industryCode}530000`,
+    'OEUN000000000000',
+    'OEUN000000110000',
+    'OEUN000000130000',
+    'OEUN000000150000',
+    'OEUN000000170000',
+    'OEUN000000190000',
+    'OEUN000000210000',
+    'OEUN000000230000',
+    'OEUN000000250000',
+    'OEUN000000270000',
+    'OEUN000000290000',
+    'OEUN000000310000',
+    'OEUN000000330000',
+    'OEUN000000350000',
+    'OEUN000000370000',
+    'OEUN000000390000',
+    'OEUN000000410000',
+    'OEUN000000430000',
+    'OEUN000000450000',
+    'OEUN000000470000',
+    'OEUN000000490000',
+    'OEUN000000510000',
+    'OEUN000000530000',
   ];
 
   try {
@@ -37,7 +34,6 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         seriesid: seriesIds,
         registrationkey: apiKey,
-        catalog: true,
         startyear: '2024',
         endyear: '2025'
       })
@@ -56,7 +52,6 @@ export default async function handler(req, res) {
       .filter(s => s.data && s.data.length > 0)
       .map(series => ({
         seriesId: series.seriesID,
-        catalog: series.catalog,
         latestValue: series.data[0].value,
         period: series.data[0].periodName + ' ' + series.data[0].year
       }));
