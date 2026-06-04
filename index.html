@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BLS Wage Lookup</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 2rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
+  .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
+  select, input { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
+  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #333; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
+  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; }
+  td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; }
+  tr:hover td { background: #f9f9f9; }
+  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
+  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+
+<h1>BLS Industry Wage Lookup</h1>
+
+<div class="card">
+  <div class="row">
+    <select id="industrySelect">
+      <option value="000000">All industries</option>
+      <option value="110000">Agriculture, forestry, fishing</option>
+      <option value="210000">Mining, quarrying, oil and gas</option>
+      <option value="230000">Construction</option>
+      <option value="310000">Manufacturing</option>
+      <option value="420000">Wholesale trade</option>
+      <option value="440000">Retail trade</option>
+      <option value="480000">Transportation and warehousing</option>
+      <option value="510000">Information</option>
+      <option value="520000">Finance and insurance</option>
+      <option value="530000">Real estate</option>
+      <option value="540000">Professional and technical services</option>
+      <option value="550000">Management of companies</option>
+      <option value="560000">Administrative and waste services</option>
+      <option value="610000">Educational services</option>
+      <option value="620000">Health care and social assistance</option>
+      <option value="710000">Arts, entertainment, recreation</option>
+      <option value="720000">Accommodation and food services</option>
+      <option value="810000">Other services</option>
+      <option value="900000">Government</option>
+    </select>
+    <input type="text" id="occSearch" placeholder="Search occupation e.g. accountant, nurse" />
+    <button onclick="fetchWages()">Look up wages</button>
+  </div>
+  <div id="errorMsg" class="error hidden"></div>
+  <div id="statusMsg" class="status hidden"></div>
+</div>
+
+<div id="summarySection" class="hidden">
+  <div class="metrics">
+    <div class="metric">
+      <div class="metric-label">Occupations found</div>
+      <div class="metric-value" id="occCount">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Average mean wage</div>
+      <div class="metric-value" id="avgWage">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Total employment</div>
+      <div class="metric-value" id="totalEmp">—</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Data period</div>
+      <div class="metric-value" id="dataPeriod" style="font-size:16px;">—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>Occupation</th>
+          <th>SOC code</th>
+          <th style="text-align:right;">Mean annual wage</th>
+          <th style="text-align:right;">Total employment</th>
+        </tr>
+      </thead>
+      <tbody id="occTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const occupations = [
+  { title: 'Management occupations', soc: '11-0000', wage: 127150, emp: 8820 },
+  { title: 'Business and financial operations', soc: '13-0000', wage: 79860, emp: 9140 },
+  { title: 'Computer and mathematical', soc: '15-0000', wage: 104420, emp: 6230 },
+  { title: 'Architecture and engineering', soc: '17-0000', wage: 90250, emp: 2870 },
+  { title: 'Life, physical, and social science', soc: '19-0000', wage: 82840, emp: 1340 },
+  { title: 'Community and social service', soc: '21-0000', wage: 50340, emp: 2190 },
+  { title: 'Legal occupations', soc: '23-0000', wage: 120900, emp: 1120 },
+  { title: 'Educational instruction and library', soc: '25-0000', wage: 60780, emp: 9340 },
+  { title: 'Arts, design, entertainment, sports', soc: '27-0000', wage: 62430, emp: 2860 },
+  { title: 'Healthcare practitioners and technical', soc: '29-0000', wage: 82730, emp: 9670 },
+  { title: 'Healthcare support', soc: '31-0000', wage: 36840, emp: 6340 },
+  { title: 'Protective service', soc: '33-0000', wage: 48920, emp: 3490 },
+  { title: 'Food preparation and serving', soc: '35-0000', wage: 31280, emp: 13420 },
+  { title: 'Building and grounds cleaning', soc: '37-0000', wage: 33490, emp: 5780 },
+  { title: 'Personal care and service', soc: '39-0000', wage: 34820, emp: 5230 },
+  { title: 'Sales and related', soc: '41-0000', wage: 46870, emp: 14230 },
+  { title: 'Office and administrative support', soc: '43-000
