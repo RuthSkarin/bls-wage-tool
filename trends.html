@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wage Trends - BLS Wage Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  nav { background: white; border-bottom: 0.5px solid #e0e0e0; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+  nav a { text-decoration: none; color: #666; font-size: 14px; }
+  nav a:hover { color: #1a1a1a; }
+  nav a.active { color: #1a1a1a; font-weight: 500; }
+  nav .brand { font-weight: 500; font-size: 16px; color: #1a1a1a; margin-right: auto; }
+  .page { padding: 2rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; align-items: flex-end; }
+  select { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
+  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #333; }
+  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
+  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
+  .hidden { display: none; }
+  .chart-wrap { position: relative; height: 400px; margin-top: 1rem; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 1rem; }
+  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric-value { font-size: 22px; font-weight: 500; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="brand">BLS Wage Tool</span>
+  <a href="index.html">Home</a>
+  <a href="wages.html">Wage Lookup</a>
+  <a href="trends.html" class="active">Wage Trends</a>
+</nav>
+
+<div class="page">
+  <h1>Wage Trends</h1>
+  <p class="subtitle">View how mean annual wages have changed over time by occupation group</p>
+
+  <div class="card">
+    <div class="row">
+      <div style="flex:1; min-width:160px;">
+        <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">Industry</label>
+        <select id="industrySelect">
+          <option value="000000">All industries</option>
+          <option value="110000">Agriculture, forestry, fishing</option>
+          <option value="210000">Mining, quarrying, oil and gas</option>
+          <option value="230000">Construction</option>
+          <option value="310000">Manufacturing</option>
+          <option value="420000">Wholesale trade</option>
+          <option value="440000">Retail trade</option>
+          <option value="480000">Transportation and warehousing</option>
+          <option value="510000">Information</option>
+          <option value="520000">Finance and insurance</option>
+          <option value="530000">Real estate</option>
+          <option value="540000">Professional and technical services</option>
+          <option value="550000">Management of companies</option>
+          <option value="560000">Administrative and waste services</option>
+          <option value="610000">Educational services</option>
+          <option value="620000">Health care and social assistance</option>
+          <option value="710000">Arts, entertainment, recreation</option>
+          <option value="720000">Accommodation and food services</option>
+          <option value="810000">Other services</option>
+          <option value="900000">Government</option>
+        </select>
+      </div>
+      <div style="flex:1; min-width:160px;">
+        <label style="font-size:13px; color:#666; display:block; margin-bottom:4px;">Occupation group</label>
+        <select id="occSelect">
+          <option value="000000">All occupations</option>
+          <option value="110000">Management</option>
+          <option value="130000">Business and financial</option>
+          <option value="150000">Computer and mathematical</option>
+          <option value="170000">Architecture and engineering</option>
+          <option value="190000">Life, physical, social science</option>
+          <option value="210000">Community and social service</option>
+          <option value="230000">Legal</option>
+          <option value="250000">Education and library</option>
+          <option value="270000">Arts and entertainment</option>
+          <option value="290000">Healthcare practitioners</option>
+          <option value="310000">Healthcare support</option>
+          <option value="330000">Protective service</option>
+          <option value="350000">Food preparation</option>
+          <option value="370000">Building and grounds</option>
+          <option value="390000">Personal care</option>
+          <option value="410000">Sales</option>
+          <option value="430000">Office and administrative</option>
+          <option value="450000">Farming and fishing</option>
+          <option value="470000">Construction and extraction</option>
+          <option value="490000">Installation and repair</option>
+          <option value="510000">Production</option>
+          <option value="530000">Transportation</option>
+        </select>
+      </div>
+      <button id="trendsBtn">Show trends</button>
+    </div>
+    <div id="errorMsg" class="error hidden"></div>
+    <div id="statusMsg" class="status hidden"></div>
+  </div>
+
+  <div id="resultsSection" class="hidden">
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Latest wage</div>
+        <div class="metric-value" id="latestWage">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Earliest wage</div>
+        <div class="metric-value" id="earliestWage">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Change over period</div>
+        <div class="metric-value" id="wageChange">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Data points</div>
+        <div class="metric-value" id="dataPoints">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="chart-wrap">
+        <canvas id="trendsChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let chartInstance = null;
+
+function fmt(val) {
+  if (!val || val === '-') return '—';
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtChange(val) {
+  if (!val) return '—';
+  const sign = val >= 0 ? '+' : '';
+  return sign + '$' + Math.abs(Math.round(val)).toLocaleString();
+}
+
+async function fetchTrends() {
+  const industry = document.getElementById('industrySelect').value;
+  const occ = document.getElementById('occSelect').value;
+
+  document.getElementById('errorMsg').classList.add('hidden');
+  document.getElementById('resultsSection').classList.add('hidden');
+  document.getElementById('statusMsg').classList.remove('hidden');
+  document.getElementById('statusMsg').textContent = 'Fetching trend data from BLS — this may take a few seconds...';
+
+  try {
+    const seriesId = `OEUN${industry}${occ}`;
+    const res = await fetch(`/api/trends?series=${seriesId}`);
+    const data = await res.json();
+
+    document.getElementById('statusMsg').classList.add('hidden');
+
+    if (data.error) {
+      document.getElementById('errorMsg').textContent = 'BLS API error: ' + data.error;
+      document.getElementById('errorMsg').classList.remove('hidden');
+      return;
+    }
+
+    if (!data.points || data.points.length === 0) {
+      document.getElementById('errorMsg').textContent = 'No trend data available for this selection. Try a different combination.';
+      document.getElementById('errorMsg').classList.remove('hidden');
+      return;
+    }
+
+    const points = data.points.reverse();
+    const labels = points.map(p => p.period);
+    const values = points.map(p => Number(p.value));
+
+    const latest = values[values.length - 1];
+    const earliest = values[0];
+    const change = latest - earliest;
+
+    document.getElementById('latestWage').textContent = fmt(latest);
+    document.getElementById('earliestWage').textContent = fmt(earliest);
+    document.getElementById('wageChange').textContent = fmtChange(change);
+    document.getElementById('dataPoints').textContent = points.length;
+    document.getElementById('resultsSection').classList.remove('hidden');
+
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    chartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Mean annual wage',
+          data: values,
+          borderColor: '#1a1a1a',
+          backgroundColor: 'rgba(26,26,26,0.05)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#1a1a1a',
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => '$' + Number(ctx.raw).toLocaleString()
+            }
+          }
+        },
+        scales: {
+          y: {
+            ticks: {
+              callback: val => '$' + Number(val).toLocaleString()
+            },
+            grid: { color: 'rgba(0,0,0,0.05)' }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+
+  } catch(e) {
+    document.getElementById('statusMsg').classList.add('hidden');
+    document.getElementById('errorMsg').textContent = 'Could not connect to BLS. Check your API key in Vercel environment variables.';
+    document.getElementById('errorMsg').classList.remove('hidden');
+  }
+}
+
+document.getElementById('trendsBtn').addEventListener('click', fetchTrends);
+</script>
+</body>
+</html>
