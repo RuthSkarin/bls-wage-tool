@@ -3,233 +3,79 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BLS Wage Lookup</title>
+<title>BLS Wage Tool</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 2rem; }
-  h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
-  .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
-  .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
-  select, input { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
-  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
-  button:hover { background: #333; }
-  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
-  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
-  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
-  .metric-value { font-size: 22px; font-weight: 500; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; }
-  td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; }
-  tr:hover td { background: #f9f9f9; }
-  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
-  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
-  .hidden { display: none; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  nav { background: white; border-bottom: 0.5px solid #e0e0e0; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+  nav a { text-decoration: none; color: #666; font-size: 14px; }
+  nav a:hover { color: #1a1a1a; }
+  nav a.active { color: #1a1a1a; font-weight: 500; }
+  nav .brand { font-weight: 500; font-size: 16px; color: #1a1a1a; margin-right: auto; }
+  .page { padding: 2rem; }
+  h1 { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 2rem; }
+  .card { background: white; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0e0; }
+  .card-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .card-value { font-size: 28px; font-weight: 500; margin-bottom: 4px; }
+  .card-sub { font-size: 12px; color: #666; }
+  .nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .nav-card { background: white; border-radius: 12px; padding: 1.5rem; border: 0.5px solid #e0e0e0; text-decoration: none; color: #1a1a1a; display: block; }
+  .nav-card:hover { border-color: #1a1a1a; }
+  .nav-card-title { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
+  .nav-card-desc { font-size: 13px; color: #666; }
+  .section-title { font-size: 16px; font-weight: 500; margin-bottom: 1rem; }
 </style>
 </head>
 <body>
 
-<h1>BLS Industry Wage Lookup</h1>
+<nav>
+  <span class="brand">BLS Wage Tool</span>
+  <a href="index.html" class="active">Home</a>
+  <a href="wages.html">Wage Lookup</a>
+  <a href="trends.html">Wage Trends</a>
+</nav>
 
-<div class="card">
-  <div class="row">
-    <select id="industrySelect">
-      <option value="000000">All industries</option>
-      <option value="110000">Agriculture, forestry, fishing</option>
-      <option value="210000">Mining, quarrying, oil and gas</option>
-      <option value="230000">Construction</option>
-      <option value="310000">Manufacturing</option>
-      <option value="420000">Wholesale trade</option>
-      <option value="440000">Retail trade</option>
-      <option value="480000">Transportation and warehousing</option>
-      <option value="510000">Information</option>
-      <option value="520000">Finance and insurance</option>
-      <option value="530000">Real estate</option>
-      <option value="540000">Professional and technical services</option>
-      <option value="550000">Management of companies</option>
-      <option value="560000">Administrative and waste services</option>
-      <option value="610000">Educational services</option>
-      <option value="620000">Health care and social assistance</option>
-      <option value="710000">Arts, entertainment, recreation</option>
-      <option value="720000">Accommodation and food services</option>
-      <option value="810000">Other services</option>
-      <option value="900000">Government</option>
-    </select>
-    <input type="text" id="occSearch" placeholder="Search occupation e.g. accountant, nurse" />
-    <button id="lookupBtn">Look up wages</button>
-  </div>
-  <div id="errorMsg" class="error hidden"></div>
-  <div id="statusMsg" class="status hidden"></div>
-</div>
+<div class="page">
+  <h1>Welcome to BLS Wage Tool</h1>
+  <p class="subtitle">Live occupational wage data for business valuation engagements</p>
 
-<div id="summarySection" class="hidden">
-  <div class="metrics">
-    <div class="metric">
-      <div class="metric-label">Occupations found</div>
-      <div class="metric-value" id="occCount">—</div>
+  <div class="cards">
+    <div class="card">
+      <div class="card-label">Data source</div>
+      <div class="card-value" style="font-size:18px;">BLS OES</div>
+      <div class="card-sub">Occupational Employment Statistics</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Average mean wage</div>
-      <div class="metric-value" id="avgWage">—</div>
+    <div class="card">
+      <div class="card-label">Industries covered</div>
+      <div class="card-value">20</div>
+      <div class="card-sub">Major NAICS sectors</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Total employment</div>
-      <div class="metric-value" id="totalEmp">—</div>
+    <div class="card">
+      <div class="card-label">Occupation groups</div>
+      <div class="card-value">23</div>
+      <div class="card-sub">SOC major groups</div>
     </div>
-    <div class="metric">
-      <div class="metric-label">Data period</div>
-      <div class="metric-value" id="dataPeriod" style="font-size:16px;">—</div>
+    <div class="card">
+      <div class="card-label">Data updated</div>
+      <div class="card-value" style="font-size:18px;">Live</div>
+      <div class="card-sub">Direct from BLS API</div>
     </div>
   </div>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Occupation</th>
-          <th>SOC code</th>
-          <th style="text-align:right;">Mean annual wage</th>
-          <th style="text-align:right;">Total employment</th>
-        </tr>
-      </thead>
-      <tbody id="occTableBody"></tbody>
-    </table>
+  <p class="section-title">Tools</p>
+  <div class="nav-cards">
+    <a href="wages.html" class="nav-card">
+      <div class="nav-card-title">Wage Lookup</div>
+      <div class="nav-card-desc">Search mean annual wages and employment by industry and occupation</div>
+    </a>
+    <a href="trends.html" class="nav-card">
+      <div class="nav-card-title">Wage Trends</div>
+      <div class="nav-card-desc">View how wages have changed over time by occupation group</div>
+    </a>
   </div>
 </div>
 
-<script>
-const occupations = [
-  { title: 'Registered nurses', soc: '29-1141', wage: 81220, emp: 3210, industries: ['620000'] },
-  { title: 'Nurse practitioners', soc: '29-1171', wage: 121610, emp: 2930, industries: ['620000'] },
-  { title: 'Physicians and surgeons', soc: '29-1060', wage: 229300, emp: 7230, industries: ['620000'] },
-  { title: 'Dentists', soc: '29-1021', wage: 163970, emp: 1130, industries: ['620000'] },
-  { title: 'Pharmacists', soc: '29-1051', wage: 128570, emp: 3120, industries: ['620000'] },
-  { title: 'Physical therapists', soc: '29-1123', wage: 95620, emp: 2390, industries: ['620000'] },
-  { title: 'Medical assistants', soc: '31-9092', wage: 38270, emp: 7230, industries: ['620000'] },
-  { title: 'Home health aides', soc: '31-1121', wage: 29430, emp: 3810, industries: ['620000'] },
-  { title: 'Social workers', soc: '21-1021', wage: 56750, emp: 3210, industries: ['620000', '900000'] },
-  { title: 'Chief executives', soc: '11-1011', wage: 189520, emp: 2930, industries: ['520000', '540000', '550000'] },
-  { title: 'General and operations managers', soc: '11-1021', wage: 123370, emp: 3450, industries: ['310000', '420000', '440000'] },
-  { title: 'Accountants and auditors', soc: '13-2011', wage: 79880, emp: 1430, industries: ['520000', '540000', '550000'] },
-  { title: 'Financial analysts', soc: '13-2051', wage: 99890, emp: 3210, industries: ['520000', '530000'] },
-  { title: 'Financial managers', soc: '11-3031', wage: 156100, emp: 6820, industries: ['520000', '550000'] },
-  { title: 'Business analysts', soc: '13-1111', wage: 93000, emp: 9760, industries: ['540000', '510000', '550000'] },
-  { title: 'Human resources managers', soc: '11-3121', wage: 130000, emp: 1650, industries: ['540000', '550000'] },
-  { title: 'Marketing managers', soc: '11-2021', wage: 140040, emp: 3280, industries: ['540000', '550000', '440000'] },
-  { title: 'Sales managers', soc: '11-2022', wage: 130600, emp: 4320, industries: ['420000', '440000', '540000'] },
-  { title: 'Software developers', soc: '15-1252', wage: 124200, emp: 1850, industries: ['510000', '540000'] },
-  { title: 'Computer systems analysts', soc: '15-1211', wage: 99270, emp: 5830, industries: ['510000', '540000'] },
-  { title: 'Information security analysts', soc: '15-1212', wage: 112000, emp: 1680, industries: ['510000', '540000'] },
-  { title: 'Data scientists', soc: '15-2051', wage: 108020, emp: 1920, industries: ['510000', '540000'] },
-  { title: 'Civil engineers', soc: '17-2051', wage: 95490, emp: 3290, industries: ['230000', '540000'] },
-  { title: 'Mechanical engineers', soc: '17-2141', wage: 96310, emp: 2870, industries: ['310000', '540000'] },
-  { title: 'Electrical engineers', soc: '17-2071', wage: 103390, emp: 1930, industries: ['310000', '540000'] },
-  { title: 'Lawyers', soc: '23-1011', wage: 135740, emp: 6230, industries: ['540000', '900000'] },
-  { title: 'Paralegals and legal assistants', soc: '23-2011', wage: 59200, emp: 3410, industries: ['540000'] },
-  { title: 'Elementary school teachers', soc: '25-2021', wage: 61350, emp: 1430, industries: ['610000', '900000'] },
-  { title: 'Postsecondary teachers', soc: '25-1099', wage: 80840, emp: 1390, industries: ['610000'] },
-  { title: 'Real estate brokers', soc: '41-9021', wage: 72910, emp: 1120, industries: ['530000'] },
-  { title: 'Real estate agents', soc: '41-9022', wage: 56310, emp: 1870, industries: ['530000'] },
-  { title: 'Property managers', soc: '11-9141', wage: 62290, emp: 3210, industries: ['530000'] },
-  { title: 'Construction managers', soc: '11-9021', wage: 98890, emp: 3210, industries: ['230000'] },
-  { title: 'Electricians', soc: '47-2111', wage: 60040, emp: 7230, industries: ['230000'] },
-  { title: 'Plumbers', soc: '47-2152', wage: 59880, emp: 4820, industries: ['230000'] },
-  { title: 'Carpenters', soc: '47-2031', wage: 53230, emp: 6230, industries: ['230000'] },
-  { title: 'Retail salespersons', soc: '41-2031', wage: 33290, emp: 3210, industries: ['440000'] },
-  { title: 'Customer service representatives', soc: '43-4051', wage: 38920, emp: 2930, industries: ['440000', '520000', '510000'] },
-  { title: 'Bookkeeping and accounting clerks', soc: '43-3031', wage: 45560, emp: 1430, industries: ['520000', '540000'] },
-  { title: 'Office managers', soc: '11-1021', wage: 61290, emp: 3210, industries: ['540000', '550000', '620000'] },
-  { title: 'Executive assistants', soc: '43-6011', wage: 63110, emp: 4820, industries: ['540000', '550000'] },
-  { title: 'Truck drivers', soc: '53-3032', wage: 49920, emp: 1930, industries: ['480000', '420000'] },
-  { title: 'Warehouse workers', soc: '53-7065', wage: 36290, emp: 1430, industries: ['480000', '420000'] },
-  { title: 'Chefs and head cooks', soc: '35-1011', wage: 56520, emp: 1120, industries: ['720000'] },
-  { title: 'Cooks restaurant', soc: '35-2014', wage: 32460, emp: 1430, industries: ['720000'] },
-  { title: 'Food service managers', soc: '11-9051', wage: 59440, emp: 2930, industries: ['720000'] },
-  { title: 'Janitors and cleaners', soc: '37-2011', wage: 32590, emp: 2130, industries: ['560000', '900000'] },
-  { title: 'Security guards', soc: '33-9032', wage: 35670, emp: 1930, industries: ['560000', '900000'] },
-  { title: 'Insurance agents', soc: '41-3021', wage: 72290, emp: 3210, industries: ['520000'] },
-  { title: 'Loan officers', soc: '13-2072', wage: 76270, emp: 2130, industries: ['520000'] },
-  { title: 'Tax preparers', soc: '13-2082', wage: 51080, emp: 1120, industries: ['540000'] },
-  { title: 'Graphic designers', soc: '27-1024', wage: 57990, emp: 2930, industries: ['540000', '510000'] },
-  { title: 'Architects', soc: '17-1011', wage: 89560, emp: 1430, industries: ['540000', '230000'] },
-  { title: 'Market research analysts', soc: '13-1161', wage: 68230, emp: 3210, industries: ['540000', '550000'] },
-  { title: 'Human resources specialists', soc: '13-1071', wage: 64240, emp: 3210, industries: ['540000', '550000'] },
-  { title: 'Farmers and ranchers', soc: '11-9013', wage: 75760, emp: 1120, industries: ['110000'] },
-  { title: 'Agricultural workers', soc: '45-2099', wage: 32940, emp: 3210, industries: ['110000'] },
-  { title: 'Mining engineers', soc: '17-2151', wage: 97090, emp: 1120, industries: ['210000'] },
-  { title: 'Production workers', soc: '51-9199', wage: 38290, emp: 3210, industries: ['310000'] },
-  { title: 'Wholesale buyers', soc: '13-1022', wage: 77540, emp: 1430, industries: ['420000'] },
-  { title: 'Airline pilots', soc: '53-2011', wage: 211790, emp: 1120, industries: ['480000'] },
-  { title: 'Art directors', soc: '27-1011', wage: 105180, emp: 1430, industries: ['710000', '510000'] },
-  { title: 'Hotel managers', soc: '11-9081', wage: 61160, emp: 1430, industries: ['720000'] },
-  { title: 'Government administrators', soc: '11-1011', wage: 120340, emp: 2130, industries: ['900000'] },
-];
-
-function fmt(val) {
-  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
-}
-
-function fmtEmp(val) {
-  const n = Number(val) * 1000;
-  if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-  if (n >= 1000) return Math.round(n / 1000) + 'K';
-  return n.toLocaleString();
-}
-
-async function fetchWages() {
-  const industry = document.getElementById('industrySelect').value;
-  const search = document.getElementById('occSearch').value.trim().toLowerCase();
-
-  document.getElementById('errorMsg').classList.add('hidden');
-  document.getElementById('summarySection').classList.add('hidden');
-  document.getElementById('statusMsg').classList.remove('hidden');
-  document.getElementById('statusMsg').textContent = 'Fetching data from BLS...';
-
-  try {
-    const res = await fetch(`/api/wages?industry=${industry}&search=${search}`);
-    const data = await res.json();
-
-    document.getElementById('statusMsg').classList.add('hidden');
-
-    const filtered = occupations.filter(o => {
-      const matchesSearch = search ? o.title.toLowerCase().includes(search) : true;
-      const matchesIndustry = industry !== '000000' ? o.industries.includes(industry) : true;
-      return matchesSearch && matchesIndustry;
-    });
-
-    if (filtered.length === 0) {
-      document.getElementById('errorMsg').textContent = 'No occupations matched your search. Try selecting All industries or a broader search term.';
-      document.getElementById('errorMsg').classList.remove('hidden');
-      return;
-    }
-
-    const avgWage = Math.round(filtered.reduce((s, o) => s + o.wage, 0) / filtered.length);
-    const totalEmp = filtered.reduce((s, o) => s + o.emp, 0);
-
-    document.getElementById('occCount').textContent = filtered.length;
-    document.getElementById('avgWage').textContent = fmt(avgWage);
-    document.getElementById('totalEmp').textContent = fmtEmp(totalEmp);
-    document.getElementById('dataPeriod').textContent = 'May 2025';
-
-    const tbody = document.getElementById('occTableBody');
-    tbody.innerHTML = filtered.map(o => `
-      <tr>
-        <td>${o.title}</td>
-        <td style="color:#666; font-size:13px;">${o.soc}</td>
-        <td style="text-align:right; font-weight:500;">${fmt(o.wage)}</td>
-        <td style="text-align:right;">${fmtEmp(o.emp)}</td>
-      </tr>
-    `).join('');
-
-    document.getElementById('summarySection').classList.remove('hidden');
-
-  } catch(e) {
-    document.getElementById('statusMsg').classList.add('hidden');
-    document.getElementById('errorMsg').textContent = 'Could not connect. Check your API key in Vercel environment variables.';
-    document.getElementById('errorMsg').classList.remove('hidden');
-  }
-}
-
-document.getElementById('lookupBtn').addEventListener('click', fetchWages);
-</script>
 </body>
 </html>
