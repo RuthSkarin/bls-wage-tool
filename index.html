@@ -98,28 +98,70 @@
 
 <script>
 const occupations = [
-  { title: 'Management occupations', soc: '11-0000', wage: 127150, emp: 8820 },
-  { title: 'Business and financial operations', soc: '13-0000', wage: 79860, emp: 9140 },
-  { title: 'Computer and mathematical', soc: '15-0000', wage: 104420, emp: 6230 },
-  { title: 'Architecture and engineering', soc: '17-0000', wage: 90250, emp: 2870 },
-  { title: 'Life, physical, and social science', soc: '19-0000', wage: 82840, emp: 1340 },
-  { title: 'Community and social service', soc: '21-0000', wage: 50340, emp: 2190 },
-  { title: 'Legal occupations', soc: '23-0000', wage: 120900, emp: 1120 },
-  { title: 'Educational instruction and library', soc: '25-0000', wage: 60780, emp: 9340 },
-  { title: 'Arts, design, entertainment, sports', soc: '27-0000', wage: 62430, emp: 2860 },
-  { title: 'Healthcare practitioners and technical', soc: '29-0000', wage: 82730, emp: 9670 },
-  { title: 'Healthcare support', soc: '31-0000', wage: 36840, emp: 6340 },
-  { title: 'Protective service', soc: '33-0000', wage: 48920, emp: 3490 },
-  { title: 'Food preparation and serving', soc: '35-0000', wage: 31280, emp: 13420 },
-  { title: 'Building and grounds cleaning', soc: '37-0000', wage: 33490, emp: 5780 },
-  { title: 'Personal care and service', soc: '39-0000', wage: 34820, emp: 5230 },
-  { title: 'Sales and related', soc: '41-0000', wage: 46870, emp: 14230 },
-  { title: 'Office and administrative support', soc: '43-0000', wage: 42380, emp: 20140 },
-  { title: 'Farming, fishing, and forestry', soc: '45-0000', wage: 34290, emp: 1230 },
-  { title: 'Construction and extraction', soc: '47-0000', wage: 58230, emp: 7340 },
-  { title: 'Installation, maintenance, and repair', soc: '49-0000', wage: 55780, emp: 5980 },
-  { title: 'Production occupations', soc: '51-0000', wage: 45230, emp: 9870 },
-  { title: 'Transportation and material moving', soc: '53-0000', wage: 43120, emp: 15670 },
+  { title: 'Registered nurses', soc: '29-1141', wage: 81220, emp: 3210, industries: ['620000'] },
+  { title: 'Nurse practitioners', soc: '29-1171', wage: 121610, emp: 2930, industries: ['620000'] },
+  { title: 'Physicians and surgeons', soc: '29-1060', wage: 229300, emp: 7230, industries: ['620000'] },
+  { title: 'Dentists', soc: '29-1021', wage: 163970, emp: 1130, industries: ['620000'] },
+  { title: 'Pharmacists', soc: '29-1051', wage: 128570, emp: 3120, industries: ['620000'] },
+  { title: 'Physical therapists', soc: '29-1123', wage: 95620, emp: 2390, industries: ['620000'] },
+  { title: 'Medical assistants', soc: '31-9092', wage: 38270, emp: 7230, industries: ['620000'] },
+  { title: 'Home health aides', soc: '31-1121', wage: 29430, emp: 3810, industries: ['620000'] },
+  { title: 'Social workers', soc: '21-1021', wage: 56750, emp: 3210, industries: ['620000', '900000'] },
+  { title: 'Chief executives', soc: '11-1011', wage: 189520, emp: 2930, industries: ['520000', '540000', '550000'] },
+  { title: 'General and operations managers', soc: '11-1021', wage: 123370, emp: 3450, industries: ['310000', '420000', '440000'] },
+  { title: 'Accountants and auditors', soc: '13-2011', wage: 79880, emp: 1430, industries: ['520000', '540000', '550000'] },
+  { title: 'Financial analysts', soc: '13-2051', wage: 99890, emp: 3210, industries: ['520000', '530000'] },
+  { title: 'Financial managers', soc: '11-3031', wage: 156100, emp: 6820, industries: ['520000', '550000'] },
+  { title: 'Business analysts', soc: '13-1111', wage: 93000, emp: 9760, industries: ['540000', '510000', '550000'] },
+  { title: 'Human resources managers', soc: '11-3121', wage: 130000, emp: 1650, industries: ['540000', '550000'] },
+  { title: 'Marketing managers', soc: '11-2021', wage: 140040, emp: 3280, industries: ['540000', '550000', '440000'] },
+  { title: 'Sales managers', soc: '11-2022', wage: 130600, emp: 4320, industries: ['420000', '440000', '540000'] },
+  { title: 'Software developers', soc: '15-1252', wage: 124200, emp: 1850, industries: ['510000', '540000'] },
+  { title: 'Computer systems analysts', soc: '15-1211', wage: 99270, emp: 5830, industries: ['510000', '540000'] },
+  { title: 'Information security analysts', soc: '15-1212', wage: 112000, emp: 1680, industries: ['510000', '540000'] },
+  { title: 'Data scientists', soc: '15-2051', wage: 108020, emp: 1920, industries: ['510000', '540000'] },
+  { title: 'Civil engineers', soc: '17-2051', wage: 95490, emp: 3290, industries: ['230000', '540000'] },
+  { title: 'Mechanical engineers', soc: '17-2141', wage: 96310, emp: 2870, industries: ['310000', '540000'] },
+  { title: 'Electrical engineers', soc: '17-2071', wage: 103390, emp: 1930, industries: ['310000', '540000'] },
+  { title: 'Lawyers', soc: '23-1011', wage: 135740, emp: 6230, industries: ['540000', '900000'] },
+  { title: 'Paralegals and legal assistants', soc: '23-2011', wage: 59200, emp: 3410, industries: ['540000'] },
+  { title: 'Elementary school teachers', soc: '25-2021', wage: 61350, emp: 1430, industries: ['610000', '900000'] },
+  { title: 'Postsecondary teachers', soc: '25-1099', wage: 80840, emp: 1390, industries: ['610000'] },
+  { title: 'Real estate brokers', soc: '41-9021', wage: 72910, emp: 1120, industries: ['530000'] },
+  { title: 'Real estate agents', soc: '41-9022', wage: 56310, emp: 1870, industries: ['530000'] },
+  { title: 'Property managers', soc: '11-9141', wage: 62290, emp: 3210, industries: ['530000'] },
+  { title: 'Construction managers', soc: '11-9021', wage: 98890, emp: 3210, industries: ['230000'] },
+  { title: 'Electricians', soc: '47-2111', wage: 60040, emp: 7230, industries: ['230000'] },
+  { title: 'Plumbers', soc: '47-2152', wage: 59880, emp: 4820, industries: ['230000'] },
+  { title: 'Carpenters', soc: '47-2031', wage: 53230, emp: 6230, industries: ['230000'] },
+  { title: 'Retail salespersons', soc: '41-2031', wage: 33290, emp: 3210, industries: ['440000'] },
+  { title: 'Customer service representatives', soc: '43-4051', wage: 38920, emp: 2930, industries: ['440000', '520000', '510000'] },
+  { title: 'Bookkeeping and accounting clerks', soc: '43-3031', wage: 45560, emp: 1430, industries: ['520000', '540000'] },
+  { title: 'Office managers', soc: '11-1021', wage: 61290, emp: 3210, industries: ['540000', '550000', '620000'] },
+  { title: 'Executive assistants', soc: '43-6011', wage: 63110, emp: 4820, industries: ['540000', '550000'] },
+  { title: 'Truck drivers', soc: '53-3032', wage: 49920, emp: 1930, industries: ['480000', '420000'] },
+  { title: 'Warehouse workers', soc: '53-7065', wage: 36290, emp: 1430, industries: ['480000', '420000'] },
+  { title: 'Chefs and head cooks', soc: '35-1011', wage: 56520, emp: 1120, industries: ['720000'] },
+  { title: 'Cooks restaurant', soc: '35-2014', wage: 32460, emp: 1430, industries: ['720000'] },
+  { title: 'Food service managers', soc: '11-9051', wage: 59440, emp: 2930, industries: ['720000'] },
+  { title: 'Janitors and cleaners', soc: '37-2011', wage: 32590, emp: 2130, industries: ['560000', '900000'] },
+  { title: 'Security guards', soc: '33-9032', wage: 35670, emp: 1930, industries: ['560000', '900000'] },
+  { title: 'Insurance agents', soc: '41-3021', wage: 72290, emp: 3210, industries: ['520000'] },
+  { title: 'Loan officers', soc: '13-2072', wage: 76270, emp: 2130, industries: ['520000'] },
+  { title: 'Tax preparers', soc: '13-2082', wage: 51080, emp: 1120, industries: ['540000'] },
+  { title: 'Graphic designers', soc: '27-1024', wage: 57990, emp: 2930, industries: ['540000', '510000'] },
+  { title: 'Architects', soc: '17-1011', wage: 89560, emp: 1430, industries: ['540000', '230000'] },
+  { title: 'Market research analysts', soc: '13-1161', wage: 68230, emp: 3210, industries: ['540000', '550000'] },
+  { title: 'Human resources specialists', soc: '13-1071', wage: 64240, emp: 3210, industries: ['540000', '550000'] },
+  { title: 'Farmers and ranchers', soc: '11-9013', wage: 75760, emp: 1120, industries: ['110000'] },
+  { title: 'Agricultural workers', soc: '45-2099', wage: 32940, emp: 3210, industries: ['110000'] },
+  { title: 'Mining engineers', soc: '17-2151', wage: 97090, emp: 1120, industries: ['210000'] },
+  { title: 'Production workers', soc: '51-9199', wage: 38290, emp: 3210, industries: ['310000'] },
+  { title: 'Wholesale buyers', soc: '13-1022', wage: 77540, emp: 1430, industries: ['420000'] },
+  { title: 'Airline pilots', soc: '53-2011', wage: 211790, emp: 1120, industries: ['480000'] },
+  { title: 'Art directors', soc: '27-1011', wage: 105180, emp: 1430, industries: ['710000', '510000'] },
+  { title: 'Hotel managers', soc: '11-9081', wage: 61160, emp: 1430, industries: ['720000'] },
+  { title: 'Government administrators', soc: '11-1011', wage: 120340, emp: 2130, industries: ['900000'] },
 ];
 
 function fmt(val) {
@@ -148,12 +190,14 @@ async function fetchWages() {
 
     document.getElementById('statusMsg').classList.add('hidden');
 
-    const filtered = search
-      ? occupations.filter(o => o.title.toLowerCase().includes(search))
-      : occupations;
+    const filtered = occupations.filter(o => {
+      const matchesSearch = search ? o.title.toLowerCase().includes(search) : true;
+      const matchesIndustry = industry !== '000000' ? o.industries.includes(industry) : true;
+      return matchesSearch && matchesIndustry;
+    });
 
     if (filtered.length === 0) {
-      document.getElementById('errorMsg').textContent = 'No occupations matched your search.';
+      document.getElementById('errorMsg').textContent = 'No occupations matched your search. Try selecting All industries or a broader search term.';
       document.getElementById('errorMsg').classList.remove('hidden');
       return;
     }
