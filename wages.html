@@ -43,7 +43,7 @@
 </nav>
 
 <div class="page">
-<h1>BLS Industry Wage Lookup <span class="live-badge">Live Data</span></h1>
+<h1>BLS Industry Wage Lookup <span class="live-badge">May 2024 Data</span></h1>
 
 <div class="card">
   <div class="row">
@@ -113,58 +113,6 @@
 </div>
 
 <script>
-const SOC_NAMES = {
-  '000000': 'All occupations',
-  '110000': 'Management occupations managers executives directors',
-  '130000': 'Business financial operations accountants analysts auditors',
-  '150000': 'Computer mathematical software developers programmers IT',
-  '170000': 'Architecture engineering architects engineers',
-  '190000': 'Life physical social science researchers scientists',
-  '210000': 'Community social service counselors social workers',
-  '230000': 'Legal lawyers attorneys paralegals',
-  '250000': 'Educational library teachers professors instructors',
-  '270000': 'Arts design entertainment sports media',
-  '290000': 'Healthcare practitioners nurses doctors physicians surgeons dentists pharmacists',
-  '310000': 'Healthcare support nursing assistants aides medical',
-  '330000': 'Protective service police security firefighters',
-  '350000': 'Food preparation serving cooks chefs restaurant',
-  '370000': 'Building grounds cleaning maintenance janitors',
-  '390000': 'Personal care service hairdressers childcare',
-  '410000': 'Sales related retail salespeople',
-  '430000': 'Office administrative support clerks assistants',
-  '450000': 'Farming fishing forestry agricultural workers',
-  '470000': 'Construction extraction electricians plumbers carpenters',
-  '490000': 'Installation maintenance repair mechanics technicians',
-  '510000': 'Production manufacturing workers assemblers',
-  '530000': 'Transportation material moving truck drivers warehouse',
-};
-
-const SOC_DISPLAY = {
-  '000000': 'All occupations',
-  '110000': 'Management occupations',
-  '130000': 'Business and financial operations',
-  '150000': 'Computer and mathematical',
-  '170000': 'Architecture and engineering',
-  '190000': 'Life, physical, and social science',
-  '210000': 'Community and social service',
-  '230000': 'Legal occupations',
-  '250000': 'Educational instruction and library',
-  '270000': 'Arts, design, entertainment, sports',
-  '290000': 'Healthcare practitioners and technical',
-  '310000': 'Healthcare support',
-  '330000': 'Protective service',
-  '350000': 'Food preparation and serving',
-  '370000': 'Building and grounds cleaning',
-  '390000': 'Personal care and service',
-  '410000': 'Sales and related',
-  '430000': 'Office and administrative support',
-  '450000': 'Farming, fishing, and forestry',
-  '470000': 'Construction and extraction',
-  '490000': 'Installation, maintenance, and repair',
-  '510000': 'Production occupations',
-  '530000': 'Transportation and material moving',
-};
-
 function fmt(val) {
   if (!val || val === '-') return '—';
   return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -172,7 +120,7 @@ function fmt(val) {
 
 function fmtEmp(val) {
   if (!val || val === '-') return '—';
-  const n = Number(val) * 1000;
+  const n = Number(val);
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return Math.round(n / 1000) + 'K';
   return n.toLocaleString();
@@ -185,67 +133,51 @@ async function fetchWages() {
   document.getElementById('errorMsg').classList.add('hidden');
   document.getElementById('summarySection').classList.add('hidden');
   document.getElementById('statusMsg').classList.remove('hidden');
-  document.getElementById('statusMsg').textContent = 'Fetching live data from BLS — this may take a few seconds...';
+  document.getElementById('statusMsg').textContent = 'Loading BLS wage data...';
 
   try {
-    const res = await fetch(`/api/wages?industry=${industry}`);
+    const res = await fetch(`/api/wages?industry=${industry}&search=${encodeURIComponent(search)}`);
     const data = await res.json();
 
+    document.getElementById('statusMsg').classList.add('hidden');
+
     if (data.error) {
-      document.getElementById('statusMsg').classList.add('hidden');
-      document.getElementById('errorMsg').textContent = 'BLS API error: ' + data.error;
+      document.getElementById('errorMsg').textContent = 'Error: ' + data.error;
       document.getElementById('errorMsg').classList.remove('hidden');
       return;
     }
 
-    document.getElementById('statusMsg').classList.add('hidden');
-
-    let results = data.results.filter(r => r.latestValue && r.latestValue !== '-');
-
-    if (search) {
-      const filtered = results.filter(r => {
-        const socCode = r.seriesId.slice(-6);
-        const keywords = SOC_NAMES[socCode] || '';
-        return keywords.toLowerCase().includes(search);
-      });
-      if (filtered.length > 0) {
-        results = filtered;
-      }
-    }
+    let results = data.results || [];
 
     if (results.length === 0) {
-      document.getElementById('errorMsg').textContent = 'No data returned for this industry. Try selecting All industries.';
+      document.getElementById('errorMsg').textContent = 'No occupations found. Try a different search term or industry.';
       document.getElementById('errorMsg').classList.remove('hidden');
       return;
     }
 
     const wages = results.map(r => Number(r.latestValue)).filter(w => w > 0);
     const avgWage = wages.length ? Math.round(wages.reduce((a, b) => a + b, 0) / wages.length) : 0;
-    const period = results[0].period || 'Latest available';
+    const totalEmp = results.reduce((a, r) => a + (Number(r.employment) || 0), 0);
 
     document.getElementById('occCount').textContent = results.length;
     document.getElementById('avgWage').textContent = fmt(avgWage);
-    document.getElementById('totalEmp').textContent = 'See table';
-    document.getElementById('dataPeriod').textContent = period;
+    document.getElementById('totalEmp').textContent = fmtEmp(totalEmp);
+    document.getElementById('dataPeriod').textContent = data.period || 'May 2024';
     document.getElementById('summarySection').classList.remove('hidden');
 
     const tbody = document.getElementById('occTableBody');
-    tbody.innerHTML = results.map(r => {
-      const socCode = r.seriesId.slice(-6);
-      const name = SOC_DISPLAY[socCode] || socCode;
-      return `
-        <tr>
-          <td>${name}</td>
-          <td style="color:#666; font-size:13px;">${socCode}</td>
-          <td style="text-align:right; font-weight:500;">${fmt(r.latestValue)}</td>
-          <td style="text-align:right;">—</td>
-        </tr>
-      `;
-    }).join('');
+    tbody.innerHTML = results.map(r => `
+      <tr>
+        <td>${r.title || r.seriesId}</td>
+        <td style="color:#666; font-size:13px;">${r.seriesId}</td>
+        <td style="text-align:right; font-weight:500;">${fmt(r.latestValue)}</td>
+        <td style="text-align:right;">${fmtEmp(r.employment)}</td>
+      </tr>
+    `).join('');
 
   } catch(e) {
     document.getElementById('statusMsg').classList.add('hidden');
-    document.getElementById('errorMsg').textContent = 'Could not connect to BLS. Check your API key in Vercel environment variables.';
+    document.getElementById('errorMsg').textContent = 'Could not load data. Please try again.';
     document.getElementById('errorMsg').classList.remove('hidden');
   }
 }
