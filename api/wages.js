@@ -1,30 +1,31 @@
 export default async function handler(req, res) {
   const apiKey = process.env.BLS_API_KEY;
+  const { industry } = req.query;
 
   const seriesIds = [
-    'OEUN000000000000',
-    'OEUN000000110000',
-    'OEUN000000130000',
-    'OEUN000000150000',
-    'OEUN000000170000',
-    'OEUN000000190000',
-    'OEUN000000210000',
-    'OEUN000000230000',
-    'OEUN000000250000',
-    'OEUN000000270000',
-    'OEUN000000290000',
-    'OEUN000000310000',
-    'OEUN000000330000',
-    'OEUN000000350000',
-    'OEUN000000370000',
-    'OEUN000000390000',
-    'OEUN000000410000',
-    'OEUN000000430000',
-    'OEUN000000450000',
-    'OEUN000000470000',
-    'OEUN000000490000',
-    'OEUN000000510000',
-    'OEUN000000530000',
+    `OEUM${industry || '000000'}000000`,
+    `OEUM${industry || '000000'}110000`,
+    `OEUM${industry || '000000'}130000`,
+    `OEUM${industry || '000000'}150000`,
+    `OEUM${industry || '000000'}170000`,
+    `OEUM${industry || '000000'}190000`,
+    `OEUM${industry || '000000'}210000`,
+    `OEUM${industry || '000000'}230000`,
+    `OEUM${industry || '000000'}250000`,
+    `OEUM${industry || '000000'}270000`,
+    `OEUM${industry || '000000'}290000`,
+    `OEUM${industry || '000000'}310000`,
+    `OEUM${industry || '000000'}330000`,
+    `OEUM${industry || '000000'}350000`,
+    `OEUM${industry || '000000'}370000`,
+    `OEUM${industry || '000000'}390000`,
+    `OEUM${industry || '000000'}410000`,
+    `OEUM${industry || '000000'}430000`,
+    `OEUM${industry || '000000'}450000`,
+    `OEUM${industry || '000000'}470000`,
+    `OEUM${industry || '000000'}490000`,
+    `OEUM${industry || '000000'}510000`,
+    `OEUM${industry || '000000'}530000`,
   ];
 
   try {
@@ -33,9 +34,7 @@ export default async function handler(req, res) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         seriesid: seriesIds,
-        registrationkey: apiKey,
-        startyear: '2024',
-        endyear: '2025'
+        registrationkey: apiKey
       })
     });
 
