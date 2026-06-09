@@ -256,14 +256,13 @@
         <div style="overflow-x:auto;">
           <table>
             <thead>
-              <tr>
-                <th>Occupation group</th>
-                <th>SOC code</th>
-                <th style="text-align:right;">Mean wage</th>
-                <th style="text-align:right;">Median wage</th>
-                <th style="text-align:right;">Employment</th>
-                <th style="text-align:right; color:#999; font-size:12px;">Range</th>
-              </tr>
+             <tr>
+  <th>Occupation group</th>
+  <th style="text-align:right;">Weight</th>
+  <th style="text-align:right;">Hours / FTE</th>
+  <th style="text-align:right;">Full time mean</th>
+  <th style="text-align:right;">Hours-adjusted mean</th>
+</tr>
             </thead>
             <tbody id="occTableBody"></tbody>
           </table>
@@ -648,6 +647,10 @@ function renderBlendRows() {
   container.innerHTML = blendRows.map((row, i) => {
     const occ = blendOccupations.find(o => o.seriesId === row.soc);
     const color = BLEND_COLORS[i % BLEND_COLORS.length];
+    const hours = row.hours || 40;
+    const fte = Math.round((hours / 40) * 100);
+    const adjMean = occ ? Math.round((occ.latestValue || 0) * (hours / 40)) : 0;
+    const adjMedian = occ ? Math.round((occ.median || 0) * (hours / 40)) : 0;
 
     const selectOptions = blendOccupations.map(o => {
       const usedByOther = blendRows.some((r, ri) => ri !== i && r.soc === o.seriesId);
@@ -662,20 +665,55 @@ function renderBlendRows() {
             ${selectOptions}
           </select>
           <div class="blend-pct-wrap">
+            <span style="font-size:12px; color:#666; white-space:nowrap;">Time allocation:</span>
             <input type="range" min="0" max="100" step="5" value="${row.pct}"
               oninput="changeBlendPct(${i}, this.value)">
             <span class="blend-pct-value" id="blendPctVal-${i}">${row.pct}%</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="font-size:12px; color:#666; white-space:nowrap;">Hrs/week:</span>
+            <input type="number" min="1" max="80" value="${hours}"
+              style="width:64px; padding:6px 8px; font-size:13px;"
+              oninput="changeBlendHours(${i}, this.value)">
+            <span style="font-size:12px; color:#666; white-space:nowrap;"
+              id="fteLabel-${i}">(${fte}% FTE)</span>
           </div>
           ${blendRows.length > 1 ? `<button class="btn-outline btn-danger btn-small" onclick="removeBlendRow(${i})">Remove</button>` : ''}
         </div>
         ${occ ? `
         <div class="blend-wages">
-          <div class="blend-wage-item"><div class="blend-wage-label">Mean wage</div><div class="blend-wage-val">${fmt(occ.latestValue)}</div></div>
-          <div class="blend-wage-item"><div class="blend-wage-label">Median wage</div><div class="blend-wage-val">${fmt(occ.median)}</div></div>
-          <div class="blend-wage-item"><div class="blend-wage-label">10th pct</div><div class="blend-wage-val">${fmt(occ.p10)}</div></div>
-          <div class="blend-wage-item"><div class="blend-wage-label">25th pct</div><div class="blend-wage-val">${fmt(occ.p25)}</div></div>
-          <div class="blend-wage-item"><div class="blend-wage-label">75th pct</div><div class="blend-wage-val">${fmt(occ.p75)}</div></div>
-          <div class="blend-wage-item"><div class="blend-wage-label">90th pct</div><div class="blend-wage-val">${fmt(occ.p90)}</div></div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">Mean wage (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.latestValue)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">Mean wage (adjusted)</div>
+            <div class="blend-wage-val" style="color:#2a9d8f;">${fmt(adjMean)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">Median wage (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.median)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">Median wage (adjusted)</div>
+            <div class="blend-wage-val" style="color:#2a9d8f;">${fmt(adjMedian)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">10th pct (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.p10)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">25th pct (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.p25)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">75th pct (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.p75)}</div>
+          </div>
+          <div class="blend-wage-item">
+            <div class="blend-wage-label">90th pct (FT)</div>
+            <div class="blend-wage-val">${fmt(occ.p90)}</div>
+          </div>
         </div>` : ''}
       </div>
     `;
@@ -692,6 +730,20 @@ function changeBlendPct(i, val) {
   blendRows[i].pct = parseInt(val);
   document.getElementById('blendPctVal-' + i).textContent = val + '%';
   updatePctTotal();
+}
+
+function changeBlendHours(i, val) {
+  const hours = Math.max(1, Math.min(80, parseInt(val) || 40));
+  blendRows[i].hours = hours;
+  const fte = Math.round((hours / 40) * 100);
+  const fteLabel = document.getElementById('fteLabel-' + i);
+  if (fteLabel) fteLabel.textContent = '(' + fte + '% FTE)';
+  const occ = blendOccupations.find(o => o.seriesId === blendRows[i].soc);
+  if (occ) {
+    const adjMean = Math.round((occ.latestValue || 0) * (hours / 40));
+    const adjMedian = Math.round((occ.median || 0) * (hours / 40));
+    renderBlendRows();
+  }
 }
 
 function updatePctTotal() {
@@ -712,36 +764,73 @@ function calculateBlend() {
   }
 
   let blendMean = 0, blendMedian = 0, blendP10 = 0, blendP25 = 0, blendP75 = 0, blendP90 = 0;
+  let blendMeanAdj = 0, blendMedianAdj = 0;
 
   const breakdown = blendRows.map(row => {
     const occ = blendOccupations.find(o => o.seriesId === row.soc);
     if (!occ) return null;
     const w = row.pct / 100;
-    blendMean   += (occ.latestValue || 0) * w;
-    blendMedian += (occ.median || 0) * w;
-    blendP10    += (occ.p10 || 0) * w;
-    blendP25    += (occ.p25 || 0) * w;
-    blendP75    += (occ.p75 || 0) * w;
-    blendP90    += (occ.p90 || 0) * w;
-    return { occ, pct: row.pct, contribution: Math.round((occ.latestValue || 0) * w) };
+    const hours = row.hours || 40;
+    const fte = hours / 40;
+
+    blendMean      += (occ.latestValue || 0) * w;
+    blendMedian    += (occ.median || 0) * w;
+    blendP10       += (occ.p10 || 0) * w;
+    blendP25       += (occ.p25 || 0) * w;
+    blendP75       += (occ.p75 || 0) * w;
+    blendP90       += (occ.p90 || 0) * w;
+    blendMeanAdj   += (occ.latestValue || 0) * w * fte;
+    blendMedianAdj += (occ.median || 0) * w * fte;
+
+    return {
+      occ,
+      pct: row.pct,
+      hours,
+      fte: Math.round(fte * 100),
+      fteMean:     Math.round((occ.latestValue || 0) * w),
+      adjMean:     Math.round((occ.latestValue || 0) * w * fte),
+      adjMedian:   Math.round((occ.median || 0) * fte),
+    };
   }).filter(Boolean);
 
-  document.getElementById('blendMean').textContent   = fmt(Math.round(blendMean));
-  document.getElementById('blendMedian').textContent = fmt(Math.round(blendMedian));
-  document.getElementById('blendP10').textContent    = fmt(Math.round(blendP10));
-  document.getElementById('blendP25').textContent    = fmt(Math.round(blendP25));
-  document.getElementById('blendP75').textContent    = fmt(Math.round(blendP75));
-  document.getElementById('blendP90').textContent    = fmt(Math.round(blendP90));
-  document.getElementById('blendStateName').textContent = blendStateName;
+  document.getElementById('blendMean').textContent        = fmt(Math.round(blendMean));
+  document.getElementById('blendMedian').textContent      = fmt(Math.round(blendMedian));
+  document.getElementById('blendP10').textContent         = fmt(Math.round(blendP10));
+  document.getElementById('blendP25').textContent         = fmt(Math.round(blendP25));
+  document.getElementById('blendP75').textContent         = fmt(Math.round(blendP75));
+  document.getElementById('blendP90').textContent         = fmt(Math.round(blendP90));
+  document.getElementById('blendStateName').textContent   = blendStateName;
+
+  // Add part time adjusted rows to results card
+  const existingAdj = document.getElementById('blendAdjRow');
+  if (existingAdj) existingAdj.remove();
+
+  const resultGrid = document.getElementById('blendResultSection').querySelector('.blend-result-grid');
+  const adjHTML = `
+    <div class="blend-result-item" id="blendAdjRow" style="grid-column:1/-1; border-top:0.5px solid rgba(255,255,255,0.2); padding-top:1rem; margin-top:0.5rem;">
+      <div class="blend-result-label" style="margin-bottom:8px; font-size:13px;">Hours-adjusted blended wages (accounting for part time)</div>
+      <div style="display:flex; gap:2rem; flex-wrap:wrap;">
+        <div>
+          <div class="blend-result-label">Adjusted mean</div>
+          <div class="blend-result-val">${fmt(Math.round(blendMeanAdj))}</div>
+        </div>
+        <div>
+          <div class="blend-result-label">Adjusted median</div>
+          <div class="blend-result-val">${fmt(Math.round(blendMedianAdj))}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  resultGrid.insertAdjacentHTML('beforeend', adjHTML);
 
   const tbody = document.getElementById('blendBreakdownBody');
   tbody.innerHTML = breakdown.map(b => `
     <tr>
       <td>${b.occ.title}</td>
       <td style="text-align:right;">${b.pct}%</td>
+      <td style="text-align:right;">${b.hours} hrs/wk (${b.fte}% FTE)</td>
       <td style="text-align:right; font-weight:500;">${fmt(b.occ.latestValue)}</td>
-      <td style="text-align:right;">${fmt(b.occ.median)}</td>
-      <td style="text-align:right; color:#666;">${fmt(b.contribution)}</td>
+      <td style="text-align:right;">${fmt(b.adjMean)}</td>
     </tr>
   `).join('');
 
@@ -752,6 +841,3 @@ function calculateBlend() {
 document.getElementById('blendLoadBtn').addEventListener('click', loadBlendOccupations);
 document.getElementById('addBlendRowBtn').addEventListener('click', addBlendRow);
 document.getElementById('calcBlendBtn').addEventListener('click', calculateBlend);
-</script>
-</body>
-</html>
