@@ -16,10 +16,13 @@
   h1 { font-size: 22px; font-weight: 500; margin-bottom: 1.5rem; }
   .card { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
   .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 1rem; }
-  select, input { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
+  .field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+  .field label { font-size: 12px; color: #666; }
+  select, input { width: 100%; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
+  .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 0.5rem; }
   button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   button:hover { background: #333; }
-  .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; margin-left: 8px; }
+  .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; }
   .btn-outline:hover { background: #f5f5f5; }
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
   .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
@@ -62,87 +65,100 @@
   <div class="print-header">
     <h2>BLS Occupational Wage Data</h2>
     <p>AMP Business Valuations &mdash; Retrieved: <span id="printDate"></span></p>
-    <p>Industry: <span id="printIndustry"></span> &mdash; Search: <span id="printSearch"></span></p>
+    <p>State: <span id="printState"></span> &mdash; Industry: <span id="printIndustry"></span> &mdash; Search: <span id="printSearch"></span></p>
   </div>
 
   <h1 class="no-print">BLS Industry Wage Lookup</h1>
 
   <div class="card no-print">
     <div class="row">
-     <select id="stateSelect">
-  <option value="national">National (All states)</option>
-  <option value="AL">Alabama</option>
-  <option value="AK">Alaska</option>
-  <option value="AZ">Arizona</option>
-  <option value="AR">Arkansas</option>
-  <option value="CA">California</option>
-  <option value="CO">Colorado</option>
-  <option value="CT">Connecticut</option>
-  <option value="DE">Delaware</option>
-  <option value="FL">Florida</option>
-  <option value="GA">Georgia</option>
-  <option value="HI">Hawaii</option>
-  <option value="ID">Idaho</option>
-  <option value="IL">Illinois</option>
-  <option value="IN">Indiana</option>
-  <option value="IA">Iowa</option>
-  <option value="KS">Kansas</option>
-  <option value="KY">Kentucky</option>
-  <option value="LA">Louisiana</option>
-  <option value="ME">Maine</option>
-  <option value="MD">Maryland</option>
-  <option value="MA">Massachusetts</option>
-  <option value="MI">Michigan</option>
-  <option value="MN">Minnesota</option>
-  <option value="MS">Mississippi</option>
-  <option value="MO">Missouri</option>
-  <option value="MT">Montana</option>
-  <option value="NE">Nebraska</option>
-  <option value="NV">Nevada</option>
-  <option value="NH">New Hampshire</option>
-  <option value="NJ">New Jersey</option>
-  <option value="NM">New Mexico</option>
-  <option value="NY">New York</option>
-  <option value="NC">North Carolina</option>
-  <option value="ND">North Dakota</option>
-  <option value="OH">Ohio</option>
-  <option value="OK">Oklahoma</option>
-  <option value="OR">Oregon</option>
-  <option value="PA">Pennsylvania</option>
-  <option value="RI">Rhode Island</option>
-  <option value="SC">South Carolina</option>
-  <option value="SD">South Dakota</option>
-  <option value="TN">Tennessee</option>
-  <option value="TX">Texas</option>
-  <option value="UT">Utah</option>
-  <option value="VT">Vermont</option>
-  <option value="VA">Virginia</option>
-  <option value="WA">Washington</option>
-  <option value="WV">West Virginia</option>
-  <option value="WI">Wisconsin
-      <select id="industrySelect">
-        <option value="000000">All industries</option>
-        <option value="110000">Agriculture, forestry, fishing</option>
-        <option value="210000">Mining, quarrying, oil and gas</option>
-        <option value="230000">Construction</option>
-        <option value="310000">Manufacturing</option>
-        <option value="420000">Wholesale trade</option>
-        <option value="440000">Retail trade</option>
-        <option value="480000">Transportation and warehousing</option>
-        <option value="510000">Information</option>
-        <option value="520000">Finance and insurance</option>
-        <option value="530000">Real estate</option>
-        <option value="540000">Professional and technical services</option>
-        <option value="550000">Management of companies</option>
-        <option value="560000">Administrative and waste services</option>
-        <option value="610000">Educational services</option>
-        <option value="620000">Health care and social assistance</option>
-        <option value="710000">Arts, entertainment, recreation</option>
-        <option value="720000">Accommodation and food services</option>
-        <option value="810000">Other services</option>
-        <option value="900000">Government</option>
-      </select>
-      <input type="text" id="occSearch" placeholder="Search e.g. nurse, accountant, engineer" />
+      <div class="field">
+        <label>State</label>
+        <select id="stateSelect">
+          <option value="national">National (All states)</option>
+          <option value="AL">Alabama</option>
+          <option value="AK">Alaska</option>
+          <option value="AZ">Arizona</option>
+          <option value="AR">Arkansas</option>
+          <option value="CA">California</option>
+          <option value="CO">Colorado</option>
+          <option value="CT">Connecticut</option>
+          <option value="DE">Delaware</option>
+          <option value="FL">Florida</option>
+          <option value="GA">Georgia</option>
+          <option value="HI">Hawaii</option>
+          <option value="ID">Idaho</option>
+          <option value="IL">Illinois</option>
+          <option value="IN">Indiana</option>
+          <option value="IA">Iowa</option>
+          <option value="KS">Kansas</option>
+          <option value="KY">Kentucky</option>
+          <option value="LA">Louisiana</option>
+          <option value="ME">Maine</option>
+          <option value="MD">Maryland</option>
+          <option value="MA">Massachusetts</option>
+          <option value="MI">Michigan</option>
+          <option value="MN">Minnesota</option>
+          <option value="MS">Mississippi</option>
+          <option value="MO">Missouri</option>
+          <option value="MT">Montana</option>
+          <option value="NE">Nebraska</option>
+          <option value="NV">Nevada</option>
+          <option value="NH">New Hampshire</option>
+          <option value="NJ">New Jersey</option>
+          <option value="NM">New Mexico</option>
+          <option value="NY">New York</option>
+          <option value="NC">North Carolina</option>
+          <option value="ND">North Dakota</option>
+          <option value="OH">Ohio</option>
+          <option value="OK">Oklahoma</option>
+          <option value="OR">Oregon</option>
+          <option value="PA">Pennsylvania</option>
+          <option value="RI">Rhode Island</option>
+          <option value="SC">South Carolina</option>
+          <option value="SD">South Dakota</option>
+          <option value="TN">Tennessee</option>
+          <option value="TX">Texas</option>
+          <option value="UT">Utah</option>
+          <option value="VT">Vermont</option>
+          <option value="VA">Virginia</option>
+          <option value="WA">Washington</option>
+          <option value="WV">West Virginia</option>
+          <option value="WI">Wisconsin</option>
+          <option value="WY">Wyoming</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Industry</label>
+        <select id="industrySelect">
+          <option value="000000">All industries</option>
+          <option value="110000">Agriculture, forestry, fishing</option>
+          <option value="210000">Mining, quarrying, oil and gas</option>
+          <option value="230000">Construction</option>
+          <option value="310000">Manufacturing</option>
+          <option value="420000">Wholesale trade</option>
+          <option value="440000">Retail trade</option>
+          <option value="480000">Transportation and warehousing</option>
+          <option value="510000">Information</option>
+          <option value="520000">Finance and insurance</option>
+          <option value="530000">Real estate</option>
+          <option value="540000">Professional and technical services</option>
+          <option value="550000">Management of companies</option>
+          <option value="560000">Administrative and waste services</option>
+          <option value="610000">Educational services</option>
+          <option value="620000">Health care and social assistance</option>
+          <option value="710000">Arts, entertainment, recreation</option>
+          <option value="720000">Accommodation and food services</option>
+          <option value="810000">Other services</option>
+          <option value="900000">Government</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Search occupation</label>
+        <input type="text" id="occSearch" placeholder="e.g. nurse, accountant, engineer" />
+      </div>
+    </div>
+    <div class="btn-row">
       <button id="lookupBtn">Look up wages</button>
     </div>
     <div id="errorMsg" class="error hidden"></div>
@@ -150,7 +166,6 @@
   </div>
 
   <div id="summarySection" class="hidden">
-
     <div class="metrics">
       <div class="metric">
         <div class="metric-label">Occupations found</div>
@@ -163,6 +178,10 @@
       <div class="metric">
         <div class="metric-label">Total employment</div>
         <div class="metric-value" id="totalEmp">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">State</div>
+        <div class="metric-value" id="stateName" style="font-size:16px;">—</div>
       </div>
       <div class="metric">
         <div class="metric-label">Data period</div>
@@ -196,7 +215,6 @@
       <strong>Methodology:</strong> Mean annual wages are calculated by multiplying mean hourly wages by a 2,080 hour work year. Employment estimates do not include self-employed workers. Data represents national estimates for all states and the District of Columbia.<br>
       <strong>Note:</strong> This data is used for internal business valuation purposes only. All figures should be verified against the most current BLS OES release prior to use in a formal valuation report.
     </div>
-
   </div>
 </div>
 
@@ -252,8 +270,9 @@ function setDates() {
 }
 
 async function fetchWages() {
+  const state = document.getElementById('stateSelect').value;
   const industry = document.getElementById('industrySelect').value;
-  const search = document.getElementById('occSearch').value.trim().toLowerCase();
+  const search = document.getElementById('occSearch').value.trim();
 
   document.getElementById('errorMsg').classList.add('hidden');
   document.getElementById('summarySection').classList.add('hidden');
@@ -261,7 +280,7 @@ async function fetchWages() {
   document.getElementById('statusMsg').textContent = 'Loading BLS wage data...';
 
   try {
-    const res = await fetch(`/api/wages?industry=${industry}&search=${encodeURIComponent(search)}`);
+    const res = await fetch(`/api/wages?state=${state}&industry=${industry}&search=${encodeURIComponent(search)}`);
     const data = await res.json();
 
     document.getElementById('statusMsg').classList.add('hidden');
@@ -272,7 +291,7 @@ async function fetchWages() {
       return;
     }
 
-    let results = data.results || [];
+    const results = data.results || [];
 
     if (results.length === 0) {
       document.getElementById('errorMsg').textContent = 'No occupations found. Try a different search term or industry.';
@@ -287,9 +306,11 @@ async function fetchWages() {
     document.getElementById('occCount').textContent = results.length;
     document.getElementById('avgWage').textContent = fmt(avgWage);
     document.getElementById('totalEmp').textContent = fmtEmp(totalEmp);
+    document.getElementById('stateName').textContent = data.state || 'National';
     document.getElementById('dataPeriod').textContent = data.period || 'May 2024';
     document.getElementById('summarySection').classList.remove('hidden');
 
+    document.getElementById('printState').textContent = data.state || 'National';
     document.getElementById('printIndustry').textContent = getIndustryName(industry);
     document.getElementById('printSearch').textContent = search || 'All occupations';
 
