@@ -31,7 +31,12 @@
   table { width: 100%; border-collapse: collapse; font-size: 14px; }
   th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; }
   td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; }
-  tr:hover td { background: #f9f9f9; }
+  tr.data-row:hover td { background: #f0f0f0; }
+  tr.expand-row td { padding: 0; }
+  .expand-inner { padding: 1rem 1.5rem; background: #f9f9f9; }
+  .percentile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 13px; }
+  .percentile-item .label { color: #666; margin-bottom: 2px; }
+  .percentile-item strong { font-size: 15px; }
   .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
   .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
   .hidden { display: none; }
@@ -279,8 +284,10 @@ function setDates() {
 
 function toggleRow(i) {
   const row = document.getElementById('expand-' + i);
+  const arrow = document.getElementById('arrow-' + i);
   const isOpen = row.style.display !== 'none';
   row.style.display = isOpen ? 'none' : 'table-row';
+  arrow.textContent = isOpen ? '▶' : '▼';
 }
 
 async function fetchWages() {
@@ -335,21 +342,35 @@ async function fetchWages() {
 
     const tbody = document.getElementById('occTableBody');
     tbody.innerHTML = results.map((r, i) => `
-      <tr style="cursor:pointer;" onclick="toggleRow(${i})">
+      <tr class="data-row" style="cursor:pointer;" onclick="toggleRow(${i})">
         <td>${r.title || r.seriesId}</td>
         <td style="color:#666; font-size:13px;">${r.seriesId}</td>
         <td style="text-align:right; font-weight:500;">${fmt(r.latestValue)}</td>
         <td style="text-align:right;">${fmt(r.median)}</td>
         <td style="text-align:right;">${fmtEmp(r.employment)}</td>
-        <td style="text-align:right; color:#999; font-size:12px;">▶</td>
+        <td style="text-align:right; color:#999; font-size:12px;" id="arrow-${i}">▶</td>
       </tr>
-      <tr id="expand-${i}" style="display:none; background:#f9f9f9;">
-        <td colspan="6" style="padding:1rem 1.5rem;">
-          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; font-size:13px;">
-            <div><div style="color:#666; margin-bottom:2px;">10th percentile</div><strong>${fmt(r.p10)}</strong></div>
-            <div><div style="color:#666; margin-bottom:2px;">25th percentile</div><strong>${fmt(r.p25)}</strong></div>
-            <div><div style="color:#666; margin-bottom:2px;">75th percentile</div><strong>${fmt(r.p75)}</strong></div>
-            <div><div style="color:#666; margin-bottom:2px;">90th percentile</div><strong>${fmt(r.p90)}</strong></div>
+      <tr class="expand-row" id="expand-${i}" style="display:none;">
+        <td colspan="6">
+          <div class="expand-inner">
+            <div class="percentile-grid">
+              <div class="percentile-item">
+                <div class="label">10th percentile</div>
+                <strong>${fmt(r.p10)}</strong>
+              </div>
+              <div class="percentile-item">
+                <div class="label">25th percentile</div>
+                <strong>${fmt(r.p25)}</strong>
+              </div>
+              <div class="percentile-item">
+                <div class="label">75th percentile</div>
+                <strong>${fmt(r.p75)}</strong>
+              </div>
+              <div class="percentile-item">
+                <div class="label">90th percentile</div>
+                <strong>${fmt(r.p90)}</strong>
+              </div>
+            </div>
           </div>
         </td>
       </tr>
