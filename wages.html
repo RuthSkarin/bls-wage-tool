@@ -176,6 +176,10 @@
         <div class="metric-value" id="avgWage">—</div>
       </div>
       <div class="metric">
+        <div class="metric-label">Average median wage</div>
+        <div class="metric-value" id="avgMedian">—</div>
+      </div>
+      <div class="metric">
         <div class="metric-label">Total employment</div>
         <div class="metric-value" id="totalEmp">—</div>
       </div>
@@ -191,20 +195,24 @@
 
     <div class="card">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-        <span style="font-size:14px; font-weight:500;">Occupation detail</span>
+        <span style="font-size:14px; font-weight:500;">Occupation detail — click any row to see wage range</span>
         <button class="btn-outline no-print" onclick="window.print()">Print / Save as PDF</button>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Occupation group</th>
-            <th>SOC code</th>
-            <th style="text-align:right;">Mean annual wage</th>
-            <th style="text-align:right;">Total employment</th>
-          </tr>
-        </thead>
-        <tbody id="occTableBody"></tbody>
-      </table>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Occupation group</th>
+              <th>SOC code</th>
+              <th style="text-align:right;">Mean wage</th>
+              <th style="text-align:right;">Median wage</th>
+              <th style="text-align:right;">Employment</th>
+              <th style="text-align:right; color:#999; font-size:12px;">Range</th>
+            </tr>
+          </thead>
+          <tbody id="occTableBody"></tbody>
+        </table>
+      </div>
     </div>
 
     <div class="source-box">
@@ -269,6 +277,12 @@ function setDates() {
   document.getElementById('printDate').textContent = formatted;
 }
 
+function toggleRow(i) {
+  const row = document.getElementById('expand-' + i);
+  const isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : 'table-row';
+}
+
 async function fetchWages() {
   const state = document.getElementById('stateSelect').value;
   const industry = document.getElementById('industrySelect').value;
@@ -299,12 +313,15 @@ async function fetchWages() {
       return;
     }
 
-    const wages = results.map(r => Number(r.latestValue)).filter(w => w > 0);
-    const avgWage = wages.length ? Math.round(wages.reduce((a, b) => a + b, 0) / wages.length) : 0;
+    const means = results.map(r => Number(r.latestValue)).filter(w => w > 0);
+    const medians = results.map(r => Number(r.median)).filter(w => w > 0);
+    const avgMean = means.length ? Math.round(means.reduce((a, b) => a + b, 0) / means.length) : 0;
+    const avgMedian = medians.length ? Math.round(medians.reduce((a, b) => a + b, 0) / medians.length) : 0;
     const totalEmp = results.reduce((a, r) => a + (Number(r.employment) || 0), 0);
 
     document.getElementById('occCount').textContent = results.length;
-    document.getElementById('avgWage').textContent = fmt(avgWage);
+    document.getElementById('avgWage').textContent = fmt(avgMean);
+    document.getElementById('avgMedian').textContent = fmt(avgMedian);
     document.getElementById('totalEmp').textContent = fmtEmp(totalEmp);
     document.getElementById('stateName').textContent = data.state || 'National';
     document.getElementById('dataPeriod').textContent = data.period || 'May 2024';
@@ -317,12 +334,24 @@ async function fetchWages() {
     setDates();
 
     const tbody = document.getElementById('occTableBody');
-    tbody.innerHTML = results.map(r => `
-      <tr>
+    tbody.innerHTML = results.map((r, i) => `
+      <tr style="cursor:pointer;" onclick="toggleRow(${i})">
         <td>${r.title || r.seriesId}</td>
         <td style="color:#666; font-size:13px;">${r.seriesId}</td>
         <td style="text-align:right; font-weight:500;">${fmt(r.latestValue)}</td>
+        <td style="text-align:right;">${fmt(r.median)}</td>
         <td style="text-align:right;">${fmtEmp(r.employment)}</td>
+        <td style="text-align:right; color:#999; font-size:12px;">▶</td>
+      </tr>
+      <tr id="expand-${i}" style="display:none; background:#f9f9f9;">
+        <td colspan="6" style="padding:1rem 1.5rem;">
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; font-size:13px;">
+            <div><div style="color:#666; margin-bottom:2px;">10th percentile</div><strong>${fmt(r.p10)}</strong></div>
+            <div><div style="color:#666; margin-bottom:2px;">25th percentile</div><strong>${fmt(r.p25)}</strong></div>
+            <div><div style="color:#666; margin-bottom:2px;">75th percentile</div><strong>${fmt(r.p75)}</strong></div>
+            <div><div style="color:#666; margin-bottom:2px;">90th percentile</div><strong>${fmt(r.p90)}</strong></div>
+          </div>
+        </td>
       </tr>
     `).join('');
 
