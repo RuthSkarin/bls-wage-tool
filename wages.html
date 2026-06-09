@@ -19,6 +19,8 @@
   select, input { flex: 1; min-width: 160px; padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; }
   button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
   button:hover { background: #333; }
+  .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; margin-left: 8px; }
+  .btn-outline:hover { background: #f5f5f5; }
   .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 1.5rem 0; }
   .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
   .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
@@ -30,12 +32,25 @@
   .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
   .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
   .hidden { display: none; }
-  .live-badge { display: inline-block; font-size: 11px; padding: 2px 8px; background: #e6f4ea; color: #2d6a4f; border-radius: 6px; margin-left: 8px; vertical-align: middle; }
+  .source-box { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 13px; color: #666; line-height: 1.6; }
+  .source-box strong { color: #1a1a1a; }
+  .print-header { display: none; }
+  @media print {
+    nav { display: none; }
+    .no-print { display: none; }
+    .print-header { display: block; margin-bottom: 1.5rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem; }
+    .print-header h2 { font-size: 18px; font-weight: 500; }
+    .print-header p { font-size: 13px; color: #666; margin-top: 4px; }
+    body { background: white; }
+    .page { padding: 0; }
+    .source-box { border: 1px solid #ccc; margin-top: 1.5rem; }
+    .metric { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
+  }
 </style>
 </head>
 <body>
 
-<nav>
+<nav class="no-print">
   <span class="brand">BLS Wage Tool</span>
   <a href="index.html">Home</a>
   <a href="wages.html" class="active">Wage Lookup</a>
@@ -43,73 +58,95 @@
 </nav>
 
 <div class="page">
-<h1>BLS Industry Wage Lookup <span class="live-badge">May 2024 Data</span></h1>
 
-<div class="card">
-  <div class="row">
-    <select id="industrySelect">
-      <option value="000000">All industries</option>
-      <option value="110000">Agriculture, forestry, fishing</option>
-      <option value="210000">Mining, quarrying, oil and gas</option>
-      <option value="230000">Construction</option>
-      <option value="310000">Manufacturing</option>
-      <option value="420000">Wholesale trade</option>
-      <option value="440000">Retail trade</option>
-      <option value="480000">Transportation and warehousing</option>
-      <option value="510000">Information</option>
-      <option value="520000">Finance and insurance</option>
-      <option value="530000">Real estate</option>
-      <option value="540000">Professional and technical services</option>
-      <option value="550000">Management of companies</option>
-      <option value="560000">Administrative and waste services</option>
-      <option value="610000">Educational services</option>
-      <option value="620000">Health care and social assistance</option>
-      <option value="710000">Arts, entertainment, recreation</option>
-      <option value="720000">Accommodation and food services</option>
-      <option value="810000">Other services</option>
-      <option value="900000">Government</option>
-    </select>
-    <input type="text" id="occSearch" placeholder="Search e.g. nurse, accountant, engineer" />
-    <button id="lookupBtn">Look up wages</button>
-  </div>
-  <div id="errorMsg" class="error hidden"></div>
-  <div id="statusMsg" class="status hidden"></div>
-</div>
-
-<div id="summarySection" class="hidden">
-  <div class="metrics">
-    <div class="metric">
-      <div class="metric-label">Occupations found</div>
-      <div class="metric-value" id="occCount">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Average mean wage</div>
-      <div class="metric-value" id="avgWage">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Total employment</div>
-      <div class="metric-value" id="totalEmp">—</div>
-    </div>
-    <div class="metric">
-      <div class="metric-label">Data period</div>
-      <div class="metric-value" id="dataPeriod" style="font-size:16px;">—</div>
-    </div>
+  <div class="print-header">
+    <h2>BLS Occupational Wage Data</h2>
+    <p>AMP Business Valuations &mdash; Retrieved: <span id="printDate"></span></p>
+    <p>Industry: <span id="printIndustry"></span> &mdash; Search: <span id="printSearch"></span></p>
   </div>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Occupation group</th>
-          <th>SOC code</th>
-          <th style="text-align:right;">Mean annual wage</th>
-          <th style="text-align:right;">Total employment</th>
-        </tr>
-      </thead>
-      <tbody id="occTableBody"></tbody>
-    </table>
+  <h1 class="no-print">BLS Industry Wage Lookup</h1>
+
+  <div class="card no-print">
+    <div class="row">
+      <select id="industrySelect">
+        <option value="000000">All industries</option>
+        <option value="110000">Agriculture, forestry, fishing</option>
+        <option value="210000">Mining, quarrying, oil and gas</option>
+        <option value="230000">Construction</option>
+        <option value="310000">Manufacturing</option>
+        <option value="420000">Wholesale trade</option>
+        <option value="440000">Retail trade</option>
+        <option value="480000">Transportation and warehousing</option>
+        <option value="510000">Information</option>
+        <option value="520000">Finance and insurance</option>
+        <option value="530000">Real estate</option>
+        <option value="540000">Professional and technical services</option>
+        <option value="550000">Management of companies</option>
+        <option value="560000">Administrative and waste services</option>
+        <option value="610000">Educational services</option>
+        <option value="620000">Health care and social assistance</option>
+        <option value="710000">Arts, entertainment, recreation</option>
+        <option value="720000">Accommodation and food services</option>
+        <option value="810000">Other services</option>
+        <option value="900000">Government</option>
+      </select>
+      <input type="text" id="occSearch" placeholder="Search e.g. nurse, accountant, engineer" />
+      <button id="lookupBtn">Look up wages</button>
+    </div>
+    <div id="errorMsg" class="error hidden"></div>
+    <div id="statusMsg" class="status hidden"></div>
   </div>
-</div>
+
+  <div id="summarySection" class="hidden">
+
+    <div class="metrics">
+      <div class="metric">
+        <div class="metric-label">Occupations found</div>
+        <div class="metric-value" id="occCount">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Average mean wage</div>
+        <div class="metric-value" id="avgWage">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Total employment</div>
+        <div class="metric-value" id="totalEmp">—</div>
+      </div>
+      <div class="metric">
+        <div class="metric-label">Data period</div>
+        <div class="metric-value" id="dataPeriod" style="font-size:16px;">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <span style="font-size:14px; font-weight:500;">Occupation detail</span>
+        <button class="btn-outline no-print" onclick="window.print()">Print / Save as PDF</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Occupation group</th>
+            <th>SOC code</th>
+            <th style="text-align:right;">Mean annual wage</th>
+            <th style="text-align:right;">Total employment</th>
+          </tr>
+        </thead>
+        <tbody id="occTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="source-box">
+      <strong>Data Source:</strong> U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics (OEWS) Program<br>
+      <strong>Survey:</strong> May 2024 National Occupational Employment and Wage Estimates, United States<br>
+      <strong>Retrieved:</strong> <span id="retrievedDate"></span><br>
+      <strong>Reference:</strong> U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics. Washington, D.C.: U.S. Department of Labor. https://www.bls.gov/oes/<br>
+      <strong>Methodology:</strong> Mean annual wages are calculated by multiplying mean hourly wages by a 2,080 hour work year. Employment estimates do not include self-employed workers. Data represents national estimates for all states and the District of Columbia.<br>
+      <strong>Note:</strong> This data is used for internal business valuation purposes only. All figures should be verified against the most current BLS OES release prior to use in a formal valuation report.
+    </div>
+
+  </div>
 </div>
 
 <script>
@@ -124,6 +161,43 @@ function fmtEmp(val) {
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return Math.round(n / 1000) + 'K';
   return n.toLocaleString();
+}
+
+function getIndustryName(code) {
+  const names = {
+    '000000': 'All industries',
+    '110000': 'Agriculture, forestry, fishing',
+    '210000': 'Mining, quarrying, oil and gas',
+    '230000': 'Construction',
+    '310000': 'Manufacturing',
+    '420000': 'Wholesale trade',
+    '440000': 'Retail trade',
+    '480000': 'Transportation and warehousing',
+    '510000': 'Information',
+    '520000': 'Finance and insurance',
+    '530000': 'Real estate',
+    '540000': 'Professional and technical services',
+    '550000': 'Management of companies',
+    '560000': 'Administrative and waste services',
+    '610000': 'Educational services',
+    '620000': 'Health care and social assistance',
+    '710000': 'Arts, entertainment, recreation',
+    '720000': 'Accommodation and food services',
+    '810000': 'Other services',
+    '900000': 'Government'
+  };
+  return names[code] || code;
+}
+
+function setDates() {
+  const now = new Date();
+  const formatted = now.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  document.getElementById('retrievedDate').textContent = formatted;
+  document.getElementById('printDate').textContent = formatted;
 }
 
 async function fetchWages() {
@@ -164,6 +238,11 @@ async function fetchWages() {
     document.getElementById('totalEmp').textContent = fmtEmp(totalEmp);
     document.getElementById('dataPeriod').textContent = data.period || 'May 2024';
     document.getElementById('summarySection').classList.remove('hidden');
+
+    document.getElementById('printIndustry').textContent = getIndustryName(industry);
+    document.getElementById('printSearch').textContent = search || 'All occupations';
+
+    setDates();
 
     const tbody = document.getElementById('occTableBody');
     tbody.innerHTML = results.map(r => `
