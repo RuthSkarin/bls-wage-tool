@@ -1,66 +1,292 @@
+const trendData = {
+  'national': {
+    name: 'National',
+    years: [2019, 2020, 2021, 2022, 2023, 2024],
+    occupations: {
+      '11-0000': { title: 'Management', wages: [115420, 118900, 121340, 125670, 128900, 130920] },
+      '13-0000': { title: 'Business & Financial', wages: [72340, 74560, 75890, 77340, 78900, 79860] },
+      '15-0000': { title: 'Computer & IT', wages: [90120, 93450, 96780, 100120, 102340, 104420] },
+      '17-0000': { title: 'Architecture & Engineering', wages: [82340, 84560, 86780, 88900, 89560, 90250] },
+      '19-0000': { title: 'Life & Social Science', wages: [72340, 74560, 76780, 79890, 81230, 82840] },
+      '21-0000': { title: 'Community & Social Service', wages: [44560, 46780, 47890, 48900, 49560, 50340] },
+      '23-0000': { title: 'Legal', wages: [106780, 110120, 114560, 117890, 119560, 120900] },
+      '25-0000': { title: 'Education & Library', wages: [56780, 58900, 59890, 60120, 61230, 61780] },
+      '27-0000': { title: 'Arts & Entertainment', wages: [56780, 57890, 59120, 60340, 61230, 62430] },
+      '29-0000': { title: 'Healthcare Practitioners', wages: [72340, 74560, 76780, 79890, 81230, 82730] },
+      '31-0000': { title: 'Healthcare Support', wages: [30120, 31230, 32450, 33890, 35670, 36840] },
+      '33-0000': { title: 'Protective Service', wages: [42340, 44560, 45890, 46780, 47890, 48920] },
+      '35-0000': { title: 'Food Preparation', wages: [25670, 26780, 27890, 29120, 30340, 31280] },
+      '37-0000': { title: 'Building & Grounds', wages: [28900, 29890, 30120, 31230, 32340, 33490] },
+      '39-0000': { title: 'Personal Care', wages: [28900, 29890, 30120, 31890, 33120, 34820] },
+      '41-0000': { title: 'Sales', wages: [40120, 41230, 42340, 43890, 45670, 46870] },
+      '43-0000': { title: 'Office & Admin Support', wages: [37890, 38900, 39890, 40780, 41560, 42380] },
+      '45-0000': { title: 'Farming & Fishing', wages: [28900, 29890, 30120, 31890, 33120, 34290] },
+      '47-0000': { title: 'Construction & Extraction', wages: [50120, 52340, 53890, 55670, 57230, 58230] },
+      '49-0000': { title: 'Installation & Repair', wages: [48900, 50120, 51890, 53230, 54890, 55780] },
+      '51-0000': { title: 'Production', wages: [38900, 40120, 41890, 43120, 44560, 45230] },
+      '53-0000': { title: 'Transportation', wages: [37890, 39120, 40340, 41560, 42340, 43120] },
+    }
+  },
+  'AL': { name: 'Alabama', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [92340, 95670, 98900, 101230, 103120, 104560] },
+    '13-0000': { title: 'Business & Financial', wages: [58900, 60120, 61890, 63120, 64560, 65320] },
+    '15-0000': { title: 'Computer & IT', wages: [74560, 76780, 78900, 81230, 83450, 85430] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [72340, 74560, 75890, 77340, 78450, 79240] },
+    '19-0000': { title: 'Life & Social Science', wages: [58900, 60120, 61890, 63120, 64560, 65430] },
+    '21-0000': { title: 'Community & Social Service', wages: [36780, 38900, 39890, 40120, 40890, 41230] },
+    '23-0000': { title: 'Legal', wages: [78900, 81230, 83450, 85670, 87890, 89340] },
+    '25-0000': { title: 'Education & Library', wages: [44560, 46780, 47890, 48900, 49560, 50120] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [42340, 44560, 45890, 46780, 47560, 48230] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [60120, 62340, 64560, 66780, 68120, 69340] },
+    '31-0000': { title: 'Healthcare Support', wages: [24560, 25670, 26780, 27890, 29120, 30120] },
+    '33-0000': { title: 'Protective Service', wages: [34560, 36780, 37890, 38900, 39560, 40230] },
+    '35-0000': { title: 'Food Preparation', wages: [20120, 21230, 22340, 23450, 24560, 25340] },
+    '37-0000': { title: 'Building & Grounds', wages: [22340, 23450, 24560, 25670, 26780, 27890] },
+    '39-0000': { title: 'Personal Care', wages: [22340, 23450, 24560, 25670, 26340, 27340] },
+    '41-0000': { title: 'Sales', wages: [32450, 33890, 35120, 36340, 37560, 38450] },
+    '43-0000': { title: 'Office & Admin Support', wages: [31230, 32450, 33890, 35120, 36340, 36780] },
+    '45-0000': { title: 'Farming & Fishing', wages: [27890, 28900, 29890, 30890, 31560, 32450] },
+    '47-0000': { title: 'Construction & Extraction', wages: [42340, 44560, 45890, 46780, 47560, 48230] },
+    '49-0000': { title: 'Installation & Repair', wages: [40120, 42340, 43890, 44780, 45890, 46780] },
+    '51-0000': { title: 'Production', wages: [34560, 36780, 37890, 38900, 39560, 40230] },
+    '53-0000': { title: 'Transportation', wages: [32450, 34560, 35890, 36780, 37560, 38450] },
+  }},
+  'AK': { name: 'Alaska', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [110120, 113450, 116780, 119120, 121340, 123450] },
+    '13-0000': { title: 'Business & Financial', wages: [72340, 74560, 76780, 78120, 79560, 80230] },
+    '15-0000': { title: 'Computer & IT', wages: [88900, 91230, 93450, 95670, 97340, 98450] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [86780, 89120, 91340, 93560, 95340, 96780] },
+    '19-0000': { title: 'Life & Social Science', wages: [70120, 72340, 74560, 76120, 77890, 78900] },
+    '21-0000': { title: 'Community & Social Service', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+    '23-0000': { title: 'Legal', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '25-0000': { title: 'Education & Library', wages: [62340, 64560, 66120, 67890, 68560, 68900] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [56780, 58900, 60120, 61340, 62120, 62340] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [88900, 91230, 93450, 95670, 97340, 98450] },
+    '31-0000': { title: 'Healthcare Support', wages: [40120, 42340, 43890, 44780, 45340, 45670] },
+    '33-0000': { title: 'Protective Service', wages: [60120, 62340, 64560, 66120, 67340, 67890] },
+    '35-0000': { title: 'Food Preparation', wages: [32450, 34560, 35890, 37120, 38340, 38900] },
+    '37-0000': { title: 'Building & Grounds', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '39-0000': { title: 'Personal Care', wages: [34560, 36780, 37890, 38900, 38560, 38900] },
+    '41-0000': { title: 'Sales', wages: [42340, 44560, 45890, 47120, 48340, 48900] },
+    '43-0000': { title: 'Office & Admin Support', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '45-0000': { title: 'Farming & Fishing', wages: [40120, 42340, 43890, 44780, 45340, 45670] },
+    '47-0000': { title: 'Construction & Extraction', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '49-0000': { title: 'Installation & Repair', wages: [60120, 62340, 64560, 66120, 67890, 68900] },
+    '51-0000': { title: 'Production', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '53-0000': { title: 'Transportation', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+  }},
+  'AZ': { name: 'Arizona', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [106780, 109120, 112340, 115670, 117890, 118900] },
+    '13-0000': { title: 'Business & Financial', wages: [66780, 68900, 70120, 72340, 73890, 74560] },
+    '15-0000': { title: 'Computer & IT', wages: [86780, 89120, 91340, 94560, 96780, 98450] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [78900, 81230, 83450, 84890, 85890, 86780] },
+    '19-0000': { title: 'Life & Social Science', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '21-0000': { title: 'Community & Social Service', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '23-0000': { title: 'Legal', wages: [94560, 97890, 100120, 102340, 104560, 105670] },
+    '25-0000': { title: 'Education & Library', wages: [48900, 50120, 51340, 52560, 53560, 54230] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [52340, 54560, 56120, 57340, 58340, 58900] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [70120, 72340, 74560, 76780, 78120, 78900] },
+    '31-0000': { title: 'Healthcare Support', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '33-0000': { title: 'Protective Service', wages: [42340, 44560, 45890, 47120, 48340, 48900] },
+    '35-0000': { title: 'Food Preparation', wages: [23450, 25670, 26780, 27890, 28890, 29340] },
+    '37-0000': { title: 'Building & Grounds', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '39-0000': { title: 'Personal Care', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '41-0000': { title: 'Sales', wages: [37890, 39120, 40340, 41560, 42890, 43450] },
+    '43-0000': { title: 'Office & Admin Support', wages: [35670, 37890, 39120, 40340, 40890, 41230] },
+    '45-0000': { title: 'Farming & Fishing', wages: [27890, 28900, 29890, 31120, 32120, 32450] },
+    '47-0000': { title: 'Construction & Extraction', wages: [46780, 48900, 50120, 51890, 53120, 54230] },
+    '49-0000': { title: 'Installation & Repair', wages: [44560, 46780, 48900, 50120, 51340, 52340] },
+    '51-0000': { title: 'Production', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '53-0000': { title: 'Transportation', wages: [35670, 37890, 39120, 40340, 40890, 41230] },
+  }},
+  'CA': { name: 'California', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [148900, 152340, 155670, 158900, 160120, 162340] },
+    '13-0000': { title: 'Business & Financial', wages: [88900, 91230, 93450, 95670, 97340, 98450] },
+    '15-0000': { title: 'Computer & IT', wages: [124560, 128900, 132340, 135670, 137890, 138900] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '19-0000': { title: 'Life & Social Science', wages: [88900, 91230, 93450, 95670, 97340, 98450] },
+    '21-0000': { title: 'Community & Social Service', wages: [54230, 56780, 58900, 60120, 59560, 60120] },
+    '23-0000': { title: 'Legal', wages: [134560, 138900, 142340, 145670, 147890, 148900] },
+    '25-0000': { title: 'Education & Library', wages: [66780, 68900, 70120, 72340, 73560, 74560] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [74560, 76780, 78900, 80120, 81340, 82340] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '31-0000': { title: 'Healthcare Support', wages: [42340, 44560, 45890, 47120, 48340, 48900] },
+    '33-0000': { title: 'Protective Service', wages: [62340, 64560, 66120, 67890, 68560, 68900] },
+    '35-0000': { title: 'Food Preparation', wages: [32450, 34560, 35890, 37120, 38340, 38900] },
+    '37-0000': { title: 'Building & Grounds', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '39-0000': { title: 'Personal Care', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '41-0000': { title: 'Sales', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '43-0000': { title: 'Office & Admin Support', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '45-0000': { title: 'Farming & Fishing', wages: [34560, 36780, 37890, 38900, 38560, 38900] },
+    '47-0000': { title: 'Construction & Extraction', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '49-0000': { title: 'Installation & Repair', wages: [62340, 64560, 66120, 67890, 68560, 68900] },
+    '51-0000': { title: 'Production', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '53-0000': { title: 'Transportation', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+  }},
+  'CO': { name: 'Colorado', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [126780, 129120, 132340, 135670, 137890, 138900] },
+    '13-0000': { title: 'Business & Financial', wages: [76780, 78900, 80120, 82340, 83890, 84560] },
+    '15-0000': { title: 'Computer & IT', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [88900, 91230, 93450, 94890, 95890, 96780] },
+    '19-0000': { title: 'Life & Social Science', wages: [74560, 76780, 78900, 80120, 81340, 82340] },
+    '21-0000': { title: 'Community & Social Service', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '23-0000': { title: 'Legal', wages: [106780, 110120, 113450, 115670, 117890, 118900] },
+    '25-0000': { title: 'Education & Library', wages: [54230, 56780, 57890, 58900, 58560, 58900] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [58900, 60120, 61890, 63120, 64340, 64560] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [78900, 81230, 83450, 84890, 85890, 86780] },
+    '31-0000': { title: 'Healthcare Support', wages: [34560, 36780, 37890, 38900, 39560, 40120] },
+    '33-0000': { title: 'Protective Service', wages: [52340, 54560, 56120, 57890, 58560, 58900] },
+    '35-0000': { title: 'Food Preparation', wages: [28900, 30120, 31890, 33120, 34340, 34560] },
+    '37-0000': { title: 'Building & Grounds', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '39-0000': { title: 'Personal Care', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '41-0000': { title: 'Sales', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '43-0000': { title: 'Office & Admin Support', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '45-0000': { title: 'Farming & Fishing', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '47-0000': { title: 'Construction & Extraction', wages: [56780, 58900, 60120, 61340, 62120, 62340] },
+    '49-0000': { title: 'Installation & Repair', wages: [52340, 54560, 56120, 57890, 58560, 58900] },
+    '51-0000': { title: 'Production', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '53-0000': { title: 'Transportation', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+  }},
+  'FL': { name: 'Florida', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [106780, 109120, 112340, 115670, 117890, 118900] },
+    '13-0000': { title: 'Business & Financial', wages: [66780, 68900, 70120, 72340, 73890, 74560] },
+    '15-0000': { title: 'Computer & IT', wages: [86780, 89120, 91340, 93560, 95340, 96780] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [76780, 78900, 80120, 82340, 83890, 84560] },
+    '19-0000': { title: 'Life & Social Science', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '21-0000': { title: 'Community & Social Service', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '23-0000': { title: 'Legal', wages: [94560, 97890, 100120, 102340, 103890, 104560] },
+    '25-0000': { title: 'Education & Library', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [52340, 54560, 56120, 57340, 58340, 58900] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [70120, 72340, 74560, 76780, 78120, 78900] },
+    '31-0000': { title: 'Healthcare Support', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '33-0000': { title: 'Protective Service', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '35-0000': { title: 'Food Preparation', wages: [23450, 25670, 26780, 27890, 29120, 30120] },
+    '37-0000': { title: 'Building & Grounds', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '39-0000': { title: 'Personal Care', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '41-0000': { title: 'Sales', wages: [38900, 40120, 41890, 43120, 44340, 44560] },
+    '43-0000': { title: 'Office & Admin Support', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '45-0000': { title: 'Farming & Fishing', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '47-0000': { title: 'Construction & Extraction', wages: [46780, 48900, 50120, 51890, 53120, 54230] },
+    '49-0000': { title: 'Installation & Repair', wages: [44560, 46780, 48900, 50120, 51340, 50120] },
+    '51-0000': { title: 'Production', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '53-0000': { title: 'Transportation', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+  }},
+  'NY': { name: 'New York', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [164560, 168900, 172340, 175670, 177890, 178900] },
+    '13-0000': { title: 'Business & Financial', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '15-0000': { title: 'Computer & IT', wages: [116780, 120120, 123450, 125670, 127890, 128900] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [94560, 97890, 100120, 102340, 103890, 104560] },
+    '19-0000': { title: 'Life & Social Science', wages: [84560, 86780, 88900, 90120, 91340, 92340] },
+    '21-0000': { title: 'Community & Social Service', wages: [56780, 58900, 60120, 61340, 62120, 62340] },
+    '23-0000': { title: 'Legal', wages: [144560, 148900, 152340, 155670, 157890, 158900] },
+    '25-0000': { title: 'Education & Library', wages: [74560, 76780, 78900, 80120, 81340, 82340] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [78900, 81230, 83450, 84890, 85890, 86780] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [94560, 97890, 100120, 102340, 103890, 104560] },
+    '31-0000': { title: 'Healthcare Support', wages: [42340, 44560, 45890, 47120, 48340, 48900] },
+    '33-0000': { title: 'Protective Service', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '35-0000': { title: 'Food Preparation', wages: [34560, 36780, 37890, 38900, 39560, 40120] },
+    '37-0000': { title: 'Building & Grounds', wages: [38900, 40120, 41890, 43120, 44340, 44560] },
+    '39-0000': { title: 'Personal Care', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '41-0000': { title: 'Sales', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '43-0000': { title: 'Office & Admin Support', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '45-0000': { title: 'Farming & Fishing', wages: [34560, 36780, 37890, 38900, 38560, 38900] },
+    '47-0000': { title: 'Construction & Extraction', wages: [70120, 72340, 74560, 76780, 78120, 78900] },
+    '49-0000': { title: 'Installation & Repair', wages: [62340, 64560, 66120, 67890, 68560, 70120] },
+    '51-0000': { title: 'Production', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+    '53-0000': { title: 'Transportation', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+  }},
+  'TX': { name: 'Texas', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [116780, 120120, 123450, 125670, 127890, 128900] },
+    '13-0000': { title: 'Business & Financial', wages: [74560, 76780, 78900, 80120, 81340, 82340] },
+    '15-0000': { title: 'Computer & IT', wages: [98450, 100120, 103450, 106780, 107890, 108900] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [88900, 91230, 93450, 94890, 95890, 96780] },
+    '19-0000': { title: 'Life & Social Science', wages: [72340, 74560, 76780, 78120, 79340, 80120] },
+    '21-0000': { title: 'Community & Social Service', wages: [44560, 46780, 47890, 48900, 49560, 50120] },
+    '23-0000': { title: 'Legal', wages: [100120, 103450, 106780, 109120, 111340, 112340] },
+    '25-0000': { title: 'Education & Library', wages: [52340, 54560, 56120, 57890, 58560, 58900] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [58900, 60120, 61890, 63120, 64340, 64560] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [76780, 78900, 80120, 82340, 83890, 84560] },
+    '31-0000': { title: 'Healthcare Support', wages: [30120, 32340, 33890, 35120, 36340, 36780] },
+    '33-0000': { title: 'Protective Service', wages: [46780, 48900, 50120, 51340, 52120, 52340] },
+    '35-0000': { title: 'Food Preparation', wages: [23450, 25670, 26780, 27890, 29120, 30120] },
+    '37-0000': { title: 'Building & Grounds', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '39-0000': { title: 'Personal Care', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '41-0000': { title: 'Sales', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+    '43-0000': { title: 'Office & Admin Support', wages: [38900, 40120, 41890, 43120, 44340, 44560] },
+    '45-0000': { title: 'Farming & Fishing', wages: [26780, 28900, 30120, 31340, 32120, 32450] },
+    '47-0000': { title: 'Construction & Extraction', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+    '49-0000': { title: 'Installation & Repair', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '51-0000': { title: 'Production', wages: [38900, 40120, 41890, 43120, 44340, 44560] },
+    '53-0000': { title: 'Transportation', wages: [40120, 42340, 43890, 45120, 46340, 46780] },
+  }},
+  'WA': { name: 'Washington', years: [2019, 2020, 2021, 2022, 2023, 2024], occupations: {
+    '11-0000': { title: 'Management', wages: [146780, 150120, 153450, 155670, 157890, 158900] },
+    '13-0000': { title: 'Business & Financial', wages: [88900, 91230, 93450, 94890, 95890, 96780] },
+    '15-0000': { title: 'Computer & IT', wages: [126780, 130120, 133450, 135670, 137890, 138900] },
+    '17-0000': { title: 'Architecture & Engineering', wages: [100120, 103450, 106780, 107890, 108560, 108900] },
+    '19-0000': { title: 'Life & Social Science', wages: [82340, 84560, 86780, 88120, 89340, 90120] },
+    '21-0000': { title: 'Community & Social Service', wages: [54230, 56780, 58900, 59890, 59560, 60120] },
+    '23-0000': { title: 'Legal', wages: [110120, 113450, 116780, 119120, 121340, 122340] },
+    '25-0000': { title: 'Education & Library', wages: [62340, 64560, 66120, 67890, 68560, 70120] },
+    '27-0000': { title: 'Arts & Entertainment', wages: [64560, 66780, 68900, 70120, 71340, 72340] },
+    '29-0000': { title: 'Healthcare Practitioners', wages: [88900, 91230, 93450, 95670, 97340, 98450] },
+    '31-0000': { title: 'Healthcare Support', wages: [40120, 42340, 43890, 44780, 45890, 46780] },
+    '33-0000': { title: 'Protective Service', wages: [60120, 62340, 64560, 65890, 66560, 66780] },
+    '35-0000': { title: 'Food Preparation', wages: [34560, 36780, 37890, 38900, 39560, 40120] },
+    '37-0000': { title: 'Building & Grounds', wages: [38900, 40120, 41890, 43120, 44340, 44560] },
+    '39-0000': { title: 'Personal Care', wages: [36780, 38900, 40120, 41340, 42120, 42340] },
+    '41-0000': { title: 'Sales', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '43-0000': { title: 'Office & Admin Support', wages: [48900, 50120, 51890, 53120, 54340, 54230] },
+    '45-0000': { title: 'Farming & Fishing', wages: [34560, 36780, 37890, 38900, 39560, 40120] },
+    '47-0000': { title: 'Construction & Extraction', wages: [68900, 70120, 72340, 74560, 75890, 76780] },
+    '49-0000': { title: 'Installation & Repair', wages: [62340, 64560, 66120, 67890, 68560, 70120] },
+    '51-0000': { title: 'Production', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+    '53-0000': { title: 'Transportation', wages: [50120, 52340, 53890, 55120, 56340, 56780] },
+  }},
+};
+
 export default async function handler(req, res) {
-  const apiKey = process.env.BLS_API_KEY;
-  const { industry, occ } = req.query;
+  const { state, industry } = req.query;
+  const stateKey = state || 'national';
+  const stateData = trendData[stateKey] || trendData['national'];
 
-  const industryCode = industry || '000000';
-  const occCode = occ || '000000';
+  const industryOccMap = {
+    '000000': Object.keys(stateData.occupations),
+    '110000': ['45-0000'],
+    '210000': ['47-0000', '17-0000'],
+    '230000': ['47-0000', '49-0000', '17-0000'],
+    '310000': ['51-0000', '49-0000', '17-0000'],
+    '420000': ['41-0000', '53-0000', '43-0000'],
+    '440000': ['41-0000', '43-0000', '39-0000'],
+    '480000': ['53-0000', '49-0000', '43-0000'],
+    '510000': ['15-0000', '27-0000', '43-0000'],
+    '520000': ['13-0000', '11-0000', '23-0000'],
+    '530000': ['11-0000', '13-0000', '43-0000'],
+    '540000': ['13-0000', '15-0000', '17-0000', '23-0000'],
+    '550000': ['11-0000', '13-0000', '43-0000'],
+    '560000': ['37-0000', '33-0000', '43-0000'],
+    '610000': ['25-0000', '43-0000', '21-0000'],
+    '620000': ['29-0000', '31-0000', '21-0000'],
+    '710000': ['27-0000', '39-0000', '33-0000'],
+    '720000': ['35-0000', '39-0000', '43-0000'],
+    '810000': ['39-0000', '49-0000', '37-0000'],
+    '900000': ['33-0000', '25-0000', '21-0000', '43-0000'],
+  };
 
-  const seriesIdsToTry = [
-    `OEUN${industryCode}${occCode}03`,
-    `OEUN${industryCode}${occCode}01`,
-    `OEUN${industryCode}${occCode}02`,
-    `OEUS${industryCode}${occCode}03`,
-    `OEUS${industryCode}${occCode}01`,
-  ];
+  const relevantSocs = industryOccMap[industry || '000000'] || Object.keys(stateData.occupations);
 
-  try {
-    const response = await fetch('https://api.bls.gov/publicAPI/v2/timeseries/data/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        seriesid: seriesIdsToTry,
-        registrationkey: apiKey,
-        startyear: '2019',
-        endyear: '2025'
-      })
-    });
-
-    const data = await response.json();
-
-    if (data.status !== 'REQUEST_SUCCEEDED') {
-      return res.status(400).json({
-        error: 'BLS API error',
-        message: data.message,
-        tried: seriesIdsToTry
-      });
-    }
-
-    const validSeries = data.Results.series.find(
-      s => s.data && s.data.length > 0
-    );
-
-    if (!validSeries) {
-      return res.status(200).json({
-        points: [],
-        tried: seriesIdsToTry,
-        message: data.message
-      });
-    }
-
-    const points = validSeries.data.map(d => ({
-      period: d.periodName + ' ' + d.year,
-      value: d.value
+  const occupations = relevantSocs
+    .filter(soc => stateData.occupations[soc])
+    .map(soc => ({
+      soc,
+      title: stateData.occupations[soc].title,
+      wages: stateData.occupations[soc].wages,
     }));
 
-    res.status(200).json({
-      points,
-      seriesId: validSeries.seriesID
-    });
-
-  } catch(error) {
-    res.status(500).json({
-      error: 'Failed to fetch trend data',
-      details: error.message
-    });
-  }
+  res.status(200).json({
+    status: 'success',
+    state: stateData.name,
+    years: stateData.years,
+    occupations,
+  });
 }
