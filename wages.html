@@ -601,7 +601,8 @@ async function loadBlendOccupations() {
   document.getElementById('blendStatusMsg').textContent = 'Loading occupations...';
 
   try {
-    const res = await fetch('/api/wages?state=' + state + '&industry=000000');
+   const industry = document.getElementById('blendIndustrySelect').value;
+const res = await fetch('/api/wages?state=' + state + '&industry=' + industry);
     const data = await res.json();
     document.getElementById('blendStatusMsg').classList.add('hidden');
 
