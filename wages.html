@@ -97,6 +97,7 @@
   <a href="index.html">Home</a>
   <a href="wages.html" class="active">Wage Lookup</a>
   <a href="trends.html">Wage Trends</a>
+  <a href="rc.html">RC Report</a>
 </nav>
 
 <div class="page">
@@ -109,14 +110,13 @@
 
   <h1 class="no-print">BLS Industry Wage Lookup</h1>
 
-  <div class="tabs no-print" id="tabBar">
+  <div class="tabs no-print">
     <button class="tab active" id="tabSingleBtn" onclick="switchTab('single')">Single Occupation</button>
     <button class="tab" id="tabBlendedBtn" onclick="switchTab('blended')">Blended Occupation</button>
   </div>
 
   <!-- SINGLE OCCUPATION TAB -->
   <div class="tab-content active" id="tab-single">
-
     <div class="card no-print">
       <div class="row">
         <div class="field">
@@ -271,42 +271,15 @@
         <strong>Note:</strong> This data is used for internal business valuation purposes only. All figures should be verified against the most current BLS OES release prior to use in a formal valuation report.
       </div>
     </div>
-
   </div>
 
   <!-- BLENDED OCCUPATION TAB -->
   <div class="tab-content" id="tab-blended">
-
     <div class="card no-print">
       <div class="row">
         <div class="field">
           <label>State</label>
           <select id="blendStateSelect">
-           <div class="field">
-  <label>Industry</label>
-  <select id="blendIndustrySelect">
-    <option value="000000">All industries</option>
-    <option value="110000">Agriculture, forestry, fishing</option>
-    <option value="210000">Mining, quarrying, oil and gas</option>
-    <option value="230000">Construction</option>
-    <option value="310000">Manufacturing</option>
-    <option value="420000">Wholesale trade</option>
-    <option value="440000">Retail trade</option>
-    <option value="480000">Transportation and warehousing</option>
-    <option value="510000">Information</option>
-    <option value="520000">Finance and insurance</option>
-    <option value="530000">Real estate</option>
-    <option value="540000">Professional and technical services</option>
-    <option value="550000">Management of companies</option>
-    <option value="560000">Administrative and waste services</option>
-    <option value="610000">Educational services</option>
-    <option value="620000">Health care and social assistance</option>
-    <option value="710000">Arts, entertainment, recreation</option>
-    <option value="720000">Accommodation and food services</option>
-    <option value="810000">Other services</option>
-    <option value="900000">Government</option>
-  </select>
-</div>
             <option value="national">National (All states)</option>
             <option value="AL">Alabama</option>
             <option value="AK">Alaska</option>
@@ -360,6 +333,31 @@
             <option value="WY">Wyoming</option>
           </select>
         </div>
+        <div class="field">
+          <label>Industry</label>
+          <select id="blendIndustrySelect">
+            <option value="000000">All industries</option>
+            <option value="110000">Agriculture, forestry, fishing</option>
+            <option value="210000">Mining, quarrying, oil and gas</option>
+            <option value="230000">Construction</option>
+            <option value="310000">Manufacturing</option>
+            <option value="420000">Wholesale trade</option>
+            <option value="440000">Retail trade</option>
+            <option value="480000">Transportation and warehousing</option>
+            <option value="510000">Information</option>
+            <option value="520000">Finance and insurance</option>
+            <option value="530000">Real estate</option>
+            <option value="540000">Professional and technical services</option>
+            <option value="550000">Management of companies</option>
+            <option value="560000">Administrative and waste services</option>
+            <option value="610000">Educational services</option>
+            <option value="620000">Health care and social assistance</option>
+            <option value="710000">Arts, entertainment, recreation</option>
+            <option value="720000">Accommodation and food services</option>
+            <option value="810000">Other services</option>
+            <option value="900000">Government</option>
+          </select>
+        </div>
       </div>
       <div class="btn-row">
         <button id="blendLoadBtn">Load occupations</button>
@@ -369,7 +367,6 @@
     </div>
 
     <div id="blendBuilderSection" class="hidden">
-
       <div style="font-size:14px; font-weight:500; margin-bottom:0.75rem;">Build your blended occupation</div>
       <div style="font-size:13px; color:#666; margin-bottom:1rem;">Add occupation groups, set the percentage of time for each role, and enter hours per week. Percentages must total 100%.</div>
 
@@ -391,7 +388,6 @@
       </div>
 
       <div id="blendResultSection" class="hidden">
-
         <div class="blend-result-card">
           <div class="blend-result-title">Blended Compensation Result</div>
           <div class="blend-result-grid" id="blendResultGrid">
@@ -456,16 +452,13 @@
           <strong>Methodology:</strong> Blended compensation is calculated as a weighted average of BLS OES mean annual wages for each selected occupation group, with weights representing the estimated percentage of time the subject individual spends in each role. Hours-adjusted wages account for part time schedules by applying a fraction of the full time equivalent (FTE = hours per week divided by 40).<br>
           <strong>Note:</strong> This data is used for internal business valuation purposes only. All figures should be verified against the most current BLS OES release prior to use in a formal valuation report.
         </div>
-
       </div>
     </div>
-
   </div>
 
 </div>
 
 <script>
-// ─── Utilities ─────────────────────────────────────────────────────────────
 function fmt(val) {
   if (!val && val !== 0) return '—';
   return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
@@ -473,50 +466,38 @@ function fmt(val) {
 
 function fmtEmp(val) {
   if (!val) return '—';
-  const n = Number(val);
+  var n = Number(val);
   if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
   if (n >= 1000) return Math.round(n / 1000) + 'K';
   return n.toLocaleString();
 }
 
 function getIndustryName(code) {
-  const names = {
-    '000000': 'All industries',
-    '110000': 'Agriculture, forestry, fishing',
-    '210000': 'Mining, quarrying, oil and gas',
-    '230000': 'Construction',
-    '310000': 'Manufacturing',
-    '420000': 'Wholesale trade',
-    '440000': 'Retail trade',
-    '480000': 'Transportation and warehousing',
-    '510000': 'Information',
-    '520000': 'Finance and insurance',
-    '530000': 'Real estate',
-    '540000': 'Professional and technical services',
-    '550000': 'Management of companies',
-    '560000': 'Administrative and waste services',
-    '610000': 'Educational services',
-    '620000': 'Health care and social assistance',
-    '710000': 'Arts, entertainment, recreation',
-    '720000': 'Accommodation and food services',
-    '810000': 'Other services',
-    '900000': 'Government'
+  var names = {
+    '000000':'All industries','110000':'Agriculture, forestry, fishing',
+    '210000':'Mining, quarrying, oil and gas','230000':'Construction',
+    '310000':'Manufacturing','420000':'Wholesale trade','440000':'Retail trade',
+    '480000':'Transportation and warehousing','510000':'Information',
+    '520000':'Finance and insurance','530000':'Real estate',
+    '540000':'Professional and technical services','550000':'Management of companies',
+    '560000':'Administrative and waste services','610000':'Educational services',
+    '620000':'Health care and social assistance','710000':'Arts, entertainment, recreation',
+    '720000':'Accommodation and food services','810000':'Other services','900000':'Government'
   };
   return names[code] || code;
 }
 
 function setDates() {
-  const now = new Date();
-  const formatted = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-  ['retrievedDate', 'printDate', 'blendRetrievedDate'].forEach(id => {
-    const el = document.getElementById(id);
+  var now = new Date();
+  var formatted = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  ['retrievedDate','printDate','blendRetrievedDate'].forEach(function(id) {
+    var el = document.getElementById(id);
     if (el) el.textContent = formatted;
   });
 }
 
 setDates();
 
-// ─── Tab switching ─────────────────────────────────────────────────────────
 function switchTab(name) {
   document.querySelectorAll('.tab-content').forEach(function(t) {
     t.classList.remove('active');
@@ -528,19 +509,19 @@ function switchTab(name) {
   document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1) + 'Btn').classList.add('active');
 }
 
-// ─── Single Occupation ─────────────────────────────────────────────────────
+// ── Single Occupation ──────────────────────────────────────────────────────
 function toggleRow(i) {
-  const row = document.getElementById('expand-' + i);
-  const arrow = document.getElementById('arrow-' + i);
-  const isOpen = row.style.display !== 'none';
+  var row = document.getElementById('expand-' + i);
+  var arrow = document.getElementById('arrow-' + i);
+  var isOpen = row.style.display !== 'none';
   row.style.display = isOpen ? 'none' : 'table-row';
   arrow.textContent = isOpen ? '▶' : '▼';
 }
 
 async function fetchWages() {
-  const state = document.getElementById('stateSelect').value;
-  const industry = document.getElementById('industrySelect').value;
-  const search = document.getElementById('occSearch').value.trim();
+  var state = document.getElementById('stateSelect').value;
+  var industry = document.getElementById('industrySelect').value;
+  var search = document.getElementById('occSearch').value.trim();
 
   document.getElementById('errorMsg').classList.add('hidden');
   document.getElementById('summarySection').classList.add('hidden');
@@ -548,8 +529,8 @@ async function fetchWages() {
   document.getElementById('statusMsg').textContent = 'Loading BLS wage data...';
 
   try {
-    const res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
-    const data = await res.json();
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
+    var data = await res.json();
     document.getElementById('statusMsg').classList.add('hidden');
 
     if (data.error) {
@@ -558,18 +539,18 @@ async function fetchWages() {
       return;
     }
 
-    const results = data.results || [];
+    var results = data.results || [];
     if (results.length === 0) {
       document.getElementById('errorMsg').textContent = 'No occupations found. Try a different search term or industry.';
       document.getElementById('errorMsg').classList.remove('hidden');
       return;
     }
 
-    const means = results.map(function(r) { return Number(r.latestValue); }).filter(function(w) { return w > 0; });
-    const medians = results.map(function(r) { return Number(r.median); }).filter(function(w) { return w > 0; });
-    const avgMean = means.length ? Math.round(means.reduce(function(a, b) { return a + b; }, 0) / means.length) : 0;
-    const avgMedian = medians.length ? Math.round(medians.reduce(function(a, b) { return a + b; }, 0) / medians.length) : 0;
-    const totalEmp = results.reduce(function(a, r) { return a + (Number(r.employment) || 0); }, 0);
+    var means = results.map(function(r) { return Number(r.latestValue); }).filter(function(w) { return w > 0; });
+    var medians = results.map(function(r) { return Number(r.median); }).filter(function(w) { return w > 0; });
+    var avgMean = means.length ? Math.round(means.reduce(function(a,b) { return a+b; },0) / means.length) : 0;
+    var avgMedian = medians.length ? Math.round(medians.reduce(function(a,b) { return a+b; },0) / medians.length) : 0;
+    var totalEmp = results.reduce(function(a,r) { return a + (Number(r.employment)||0); }, 0);
 
     document.getElementById('occCount').textContent = results.length;
     document.getElementById('avgWage').textContent = fmt(avgMean);
@@ -581,7 +562,7 @@ async function fetchWages() {
     document.getElementById('printState').textContent = data.state || 'National';
     document.getElementById('printIndustry').textContent = getIndustryName(industry);
 
-    const tbody = document.getElementById('occTableBody');
+    var tbody = document.getElementById('occTableBody');
     tbody.innerHTML = results.map(function(r, i) {
       return '<tr class="data-row" style="cursor:pointer;" onclick="toggleRow(' + i + ')">' +
         '<td>' + (r.title || r.seriesId) + '</td>' +
@@ -611,28 +592,27 @@ async function fetchWages() {
 
 document.getElementById('lookupBtn').addEventListener('click', fetchWages);
 
-// ─── Blended Occupation ────────────────────────────────────────────────────
+// ── Blended Occupation ─────────────────────────────────────────────────────
 var blendOccupations = [];
 var blendRows = [];
 var blendStateName = '';
-
-var BLEND_COLORS = ['#1a1a1a', '#e63946', '#2a9d8f', '#e9c46a', '#f4a261', '#457b9d'];
+var BLEND_COLORS = ['#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261','#457b9d'];
 
 async function loadBlendOccupations() {
-  const state = document.getElementById('blendStateSelect').value;
+  var state = document.getElementById('blendStateSelect').value;
+  var industry = document.getElementById('blendIndustrySelect').value;
   document.getElementById('blendErrorMsg').classList.add('hidden');
   document.getElementById('blendBuilderSection').classList.add('hidden');
   document.getElementById('blendStatusMsg').classList.remove('hidden');
   document.getElementById('blendStatusMsg').textContent = 'Loading occupations...';
 
   try {
-   const industry = document.getElementById('blendIndustrySelect').value;
-const res = await fetch('/api/wages?state=' + state + '&industry=' + industry);
-    const data = await res.json();
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry);
+    var data = await res.json();
     document.getElementById('blendStatusMsg').classList.add('hidden');
 
     if (!data.results || data.results.length === 0) {
-      document.getElementById('blendErrorMsg').textContent = 'Could not load occupations for this state.';
+      document.getElementById('blendErrorMsg').textContent = 'Could not load occupations for this selection.';
       document.getElementById('blendErrorMsg').classList.remove('hidden');
       return;
     }
@@ -655,8 +635,8 @@ const res = await fetch('/api/wages?state=' + state + '&industry=' + industry);
 
 function addBlendRow() {
   if (blendRows.length >= 6) return;
-  const usedSocs = blendRows.map(function(r) { return r.soc; });
-  const available = blendOccupations.filter(function(o) { return !usedSocs.includes(o.seriesId); });
+  var usedSocs = blendRows.map(function(r) { return r.soc; });
+  var available = blendOccupations.filter(function(o) { return !usedSocs.includes(o.seriesId); });
   if (available.length === 0) return;
   blendRows.push({ soc: available[0].seriesId, pct: 0, hours: 40 });
   renderBlendRows();
@@ -670,31 +650,28 @@ function removeBlendRow(i) {
 }
 
 function renderBlendRows() {
-  const container = document.getElementById('blendRows');
-  if (blendRows.length === 0) {
-    container.innerHTML = '';
-    return;
-  }
+  var container = document.getElementById('blendRows');
+  if (blendRows.length === 0) { container.innerHTML = ''; return; }
 
   container.innerHTML = blendRows.map(function(row, i) {
-    const occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
-    const color = BLEND_COLORS[i % BLEND_COLORS.length];
-    const hours = row.hours || 40;
-    const fte = Math.round((hours / 40) * 100);
-    const adjMean = occ ? Math.round((occ.latestValue || 0) * (hours / 40)) : 0;
-    const adjMedian = occ ? Math.round((occ.median || 0) * (hours / 40)) : 0;
+    var occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
+    var color = BLEND_COLORS[i % BLEND_COLORS.length];
+    var hours = row.hours || 40;
+    var fte = Math.round((hours / 40) * 100);
+    var adjMean = occ ? Math.round((occ.latestValue || 0) * (hours / 40)) : 0;
+    var adjMedian = occ ? Math.round((occ.median || 0) * (hours / 40)) : 0;
 
-    const selectOptions = blendOccupations.map(function(o) {
-      const usedByOther = blendRows.some(function(r, ri) { return ri !== i && r.soc === o.seriesId; });
+    var selectOptions = blendOccupations.map(function(o) {
+      var usedByOther = blendRows.some(function(r, ri) { return ri !== i && r.soc === o.seriesId; });
       if (usedByOther) return '';
       return '<option value="' + o.seriesId + '"' + (o.seriesId === row.soc ? ' selected' : '') + '>' + o.title + '</option>';
     }).join('');
 
-    const removeBtn = blendRows.length > 1
+    var removeBtn = blendRows.length > 1
       ? '<button class="btn-outline btn-danger btn-small" onclick="removeBlendRow(' + i + ')">Remove</button>'
       : '';
 
-    const wageDetails = occ ? (
+    var wageDetails = occ ? (
       '<div class="blend-wages">' +
         '<div class="blend-wage-item"><div class="blend-wage-label">Mean wage (FT)</div><div class="blend-wage-val">' + fmt(occ.latestValue) + '</div></div>' +
         '<div class="blend-wage-item"><div class="blend-wage-label">Mean wage (adjusted)</div><div class="blend-wage-val" style="color:#2a9d8f;">' + fmt(adjMean) + '</div></div>' +
@@ -708,7 +685,7 @@ function renderBlendRows() {
     ) : '';
 
     return (
-      '<div class="blend-row" style="border-left: 3px solid ' + color + ';">' +
+      '<div class="blend-row" style="border-left:3px solid ' + color + ';">' +
         '<div class="blend-row-header">' +
           '<select style="flex:1; min-width:200px;" onchange="changeBlendOcc(' + i + ', this.value)">' + selectOptions + '</select>' +
           '<div class="blend-pct-wrap">' +
@@ -742,15 +719,15 @@ function changeBlendPct(i, val) {
 }
 
 function changeBlendHours(i, val) {
-  const hours = Math.max(1, Math.min(80, parseInt(val) || 40));
+  var hours = Math.max(1, Math.min(80, parseInt(val) || 40));
   blendRows[i].hours = hours;
   renderBlendRows();
 }
 
 function updatePctTotal() {
-  const total = blendRows.reduce(function(a, r) { return a + r.pct; }, 0);
-  const el = document.getElementById('pctTotalValue');
-  const bar = document.getElementById('pctBarInner');
+  var total = blendRows.reduce(function(a,r) { return a + r.pct; }, 0);
+  var el = document.getElementById('pctTotalValue');
+  var bar = document.getElementById('pctBarInner');
   el.textContent = total + '%';
   el.className = 'pct-total-value' + (total > 100 ? ' over' : total === 100 ? ' exact' : '');
   bar.style.width = Math.min(total, 100) + '%';
@@ -758,64 +735,52 @@ function updatePctTotal() {
 }
 
 function calculateBlend() {
-  const total = blendRows.reduce(function(a, r) { return a + r.pct; }, 0);
+  var total = blendRows.reduce(function(a,r) { return a + r.pct; }, 0);
   if (total !== 100) {
     alert('Percentages must total exactly 100% before calculating. Current total: ' + total + '%');
     return;
   }
 
-  var blendMean = 0, blendMedian = 0, blendP10 = 0, blendP25 = 0, blendP75 = 0, blendP90 = 0;
-  var blendMeanAdj = 0, blendMedianAdj = 0;
+  var bMean=0, bMedian=0, bP10=0, bP25=0, bP75=0, bP90=0, bMeanAdj=0, bMedianAdj=0;
 
-  const breakdown = blendRows.map(function(row) {
-    const occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
+  var breakdown = blendRows.map(function(row) {
+    var occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
     if (!occ) return null;
-    const w = row.pct / 100;
-    const hours = row.hours || 40;
-    const fte = hours / 40;
-
-    blendMean      += (occ.latestValue || 0) * w;
-    blendMedian    += (occ.median || 0) * w;
-    blendP10       += (occ.p10 || 0) * w;
-    blendP25       += (occ.p25 || 0) * w;
-    blendP75       += (occ.p75 || 0) * w;
-    blendP90       += (occ.p90 || 0) * w;
-    blendMeanAdj   += (occ.latestValue || 0) * w * fte;
-    blendMedianAdj += (occ.median || 0) * w * fte;
-
-    return {
-      occ: occ,
-      pct: row.pct,
-      hours: hours,
-      fte: Math.round(fte * 100),
-      adjMean: Math.round((occ.latestValue || 0) * w * fte),
-    };
+    var w = row.pct / 100;
+    var hours = row.hours || 40;
+    var fte = hours / 40;
+    bMean      += (occ.latestValue || 0) * w;
+    bMedian    += (occ.median || 0) * w;
+    bP10       += (occ.p10 || 0) * w;
+    bP25       += (occ.p25 || 0) * w;
+    bP75       += (occ.p75 || 0) * w;
+    bP90       += (occ.p90 || 0) * w;
+    bMeanAdj   += (occ.latestValue || 0) * w * fte;
+    bMedianAdj += (occ.median || 0) * w * fte;
+    return { occ:occ, pct:row.pct, hours:hours, fte:Math.round(fte*100), adjMean:Math.round((occ.latestValue||0)*w*fte) };
   }).filter(Boolean);
 
-  document.getElementById('blendMean').textContent    = fmt(Math.round(blendMean));
-  document.getElementById('blendMedian').textContent  = fmt(Math.round(blendMedian));
-  document.getElementById('blendP10').textContent     = fmt(Math.round(blendP10));
-  document.getElementById('blendP25').textContent     = fmt(Math.round(blendP25));
-  document.getElementById('blendP75').textContent     = fmt(Math.round(blendP75));
-  document.getElementById('blendP90').textContent     = fmt(Math.round(blendP90));
+  document.getElementById('blendMean').textContent    = fmt(Math.round(bMean));
+  document.getElementById('blendMedian').textContent  = fmt(Math.round(bMedian));
+  document.getElementById('blendP10').textContent     = fmt(Math.round(bP10));
+  document.getElementById('blendP25').textContent     = fmt(Math.round(bP25));
+  document.getElementById('blendP75').textContent     = fmt(Math.round(bP75));
+  document.getElementById('blendP90').textContent     = fmt(Math.round(bP90));
   document.getElementById('blendStateName').textContent = blendStateName;
 
-  const existingAdj = document.getElementById('blendAdjRow');
-  if (existingAdj) existingAdj.remove();
-
-  const resultGrid = document.getElementById('blendResultGrid');
-  resultGrid.insertAdjacentHTML('beforeend',
+  var existAdj = document.getElementById('blendAdjRow');
+  if (existAdj) existAdj.remove();
+  document.getElementById('blendResultGrid').insertAdjacentHTML('beforeend',
     '<div class="blend-result-item" id="blendAdjRow" style="grid-column:1/-1; border-top:0.5px solid rgba(255,255,255,0.2); padding-top:1rem; margin-top:0.5rem;">' +
       '<div class="blend-result-label" style="margin-bottom:8px;">Hours-adjusted blended wages (part time)</div>' +
       '<div style="display:flex; gap:2rem; flex-wrap:wrap;">' +
-        '<div><div class="blend-result-label">Adjusted mean</div><div class="blend-result-val">' + fmt(Math.round(blendMeanAdj)) + '</div></div>' +
-        '<div><div class="blend-result-label">Adjusted median</div><div class="blend-result-val">' + fmt(Math.round(blendMedianAdj)) + '</div></div>' +
+        '<div><div class="blend-result-label">Adjusted mean</div><div class="blend-result-val">' + fmt(Math.round(bMeanAdj)) + '</div></div>' +
+        '<div><div class="blend-result-label">Adjusted median</div><div class="blend-result-val">' + fmt(Math.round(bMedianAdj)) + '</div></div>' +
       '</div>' +
     '</div>'
   );
 
-  const tbody = document.getElementById('blendBreakdownBody');
-  tbody.innerHTML = breakdown.map(function(b) {
+  document.getElementById('blendBreakdownBody').innerHTML = breakdown.map(function(b) {
     return '<tr>' +
       '<td>' + b.occ.title + '</td>' +
       '<td style="text-align:right;">' + b.pct + '%</td>' +
@@ -826,7 +791,7 @@ function calculateBlend() {
   }).join('');
 
   document.getElementById('blendResultSection').classList.remove('hidden');
-  document.getElementById('blendResultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  document.getElementById('blendResultSection').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 document.getElementById('blendLoadBtn').addEventListener('click', loadBlendOccupations);
