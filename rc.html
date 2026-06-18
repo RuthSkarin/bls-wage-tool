@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC Report - BLS Wage Tool</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  nav { background: white; border-bottom: 0.5px solid #e0e0e0; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+  nav a { text-decoration: none; color: #666; font-size: 14px; }
+  nav a:hover { color: #1a1a1a; }
+  nav a.active { color: #1a1a1a; font-weight: 500; }
+  nav .brand { font-weight: 500; font-size: 16px; color: #1a1a1a; margin-right: auto; }
+  .page { padding: 2rem; max-width: 960px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .page-subtitle { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .section { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #e0e0e0; }
+  .section-num { font-size: 11px; font-weight: 600; color: white; background: #1a1a1a; border-radius: 4px; padding: 2px 8px; letter-spacing: 0.05em; }
+  .section-title { font-size: 16px; font-weight: 500; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-field label { font-size: 12px; color: #666; }
+  .form-field input, .form-field select, .form-field textarea { padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; font-family: inherit; width: 100%; }
+  .form-field textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: #1a1a1a; }
+  .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
+  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #333; }
+  .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; }
+  .btn-outline:hover { background: #f5f5f5; }
+  .btn-danger { background: white; color: #c0392b; border: 0.5px solid #c0392b; }
+  .btn-small { padding: 5px 12px; font-size: 13px; }
+  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
+  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
+  .hidden { display: none; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 1rem 0; }
+  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
+  .metric.dark { background: #1a1a1a; color: white; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric.dark .metric-label { color: rgba(255,255,255,0.6); }
+  .metric-value { font-size: 20px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; font-size: 13px; }
+  td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; font-size: 13px; }
+  .source-box { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 12px; color: #666; line-height: 1.6; }
+  .source-box strong { color: #1a1a1a; }
+  .radio-group { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .radio-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; }
+  .blend-row { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-bottom: 0.75rem; }
+  .blend-row-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .blend-pct-wrap { display: flex; align-items: center; gap: 8px; }
+  .blend-pct-wrap input[type=range] { width: 120px; accent-color: #1a1a1a; }
+  .pct-total-row { display: flex; align-items: center; gap: 12px; background: #f5f5f5; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; }
+  .pct-total-val { font-size: 15px; font-weight: 500; }
+  .pct-total-val.over { color: #c0392b; }
+  .pct-total-val.exact { color: #27ae60; }
+  .pct-bar-outer { flex: 1; height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; }
+  .pct-bar-inner { height: 100%; background: #1a1a1a; border-radius: 3px; transition: width 0.2s; }
+  .pct-bar-inner.over { background: #c0392b; }
+  .pct-bar-inner.exact { background: #27ae60; }
+  .positioning-bar { position: relative; height: 12px; background: linear-gradient(to right, #e0e0e0, #1a1a1a); border-radius: 6px; margin: 1.5rem 0 2rem; }
+  .pos-marker { position: absolute; top: -5px; width: 22px; height: 22px; background: #e63946; border: 2px solid white; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .pos-marker-label { position: absolute; top: 22px; font-size: 11px; color: #e63946; font-weight: 600; transform: translateX(-50%); white-space: nowrap; }
+  .pos-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; margin-top: 0.25rem; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 0.75rem; }
+  .tag-above { background: #fdecea; color: #c0392b; }
+  .tag-below { background: #eaf7f0; color: #27ae60; }
+  .tag-within { background: #eef4fb; color: #2980b9; }
+  .conclusion-box { background: #1a1a1a; color: white; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+  .conclusion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 1rem; }
+  .cl { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+  .cv { font-size: 22px; font-weight: 500; }
+  .cv.small { font-size: 16px; }
+
+  /* Letterhead — print only */
+  .letterhead { display: none; }
+  @media print {
+    nav, .no-print { display: none; }
+    body { background: white; font-size: 12px; }
+    .page { padding: 0; max-width: 100%; }
+    .page-title, .page-subtitle { display: none; }
+    .letterhead { display: block; border-bottom: 2px solid #1a1a1a; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .lh-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .lh-firm { font-size: 18px; font-weight: 600; }
+    .lh-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .lh-meta { text-align: right; font-size: 12px; color: #666; line-height: 1.6; }
+    .lh-report-title { font-size: 14px; font-weight: 500; margin-top: 0.75rem; }
+    .section { border: 0.5px solid #ccc; border-radius: 0; margin-bottom: 0.75rem; padding: 1rem; break-inside: avoid; }
+    .metric { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
+    .metric.dark { background: #1a1a1a !important; color: white !important; -webkit-print-color-adjust: exact; }
+    .conclusion-box { background: #1a1a1a !important; color: white !important; -webkit-print-color-adjust: exact; }
+    .source-box { background: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+    .positioning-bar { -webkit-print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="no-print">
+  <span class="brand">BLS Wage Tool</span>
+  <a href="index.html">Home</a>
+  <a href="wages.html">Wage Lookup</a>
+  <a href="trends.html">Wage Trends</a>
+  <a href="rc.html" class="active">RC Report</a>
+</nav>
+
+<div class="page">
+
+  <!-- Print letterhead -->
+  <div class="letterhead">
+    <div class="lh-top">
+      <div>
+        <div class="lh-firm">AMP Business Valuations</div>
+        <div class="lh-sub">Reasonable Compensation Analysis</div>
+      </div>
+      <div class="lh-meta">
+        <div id="lhDate"></div>
+        <div id="lhAnalyst"></div>
+      </div>
+    </div>
+    <div class="lh-report-title">Reasonable Compensation Report — <span id="lhSubject"></span></div>
+  </div>
+
+  <div class="page-title no-print">Reasonable Compensation Report</div>
+  <p class="page-subtitle no-print">Complete each section then print or save as PDF for your workfile.</p>
+
+  <!-- Section 1: Background -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Background</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Company name</label>
+        <input type="text" id="companyName" placeholder="ABC Plumbing LLC" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>State</label>
+        <select id="companyState">
+          <option value="national">National (All states)</option>
+          <option value="AL">Alabama</option>
+          <option value="AK">Alaska</option>
+          <option value="AZ">Arizona</option>
+          <option value="AR">Arkansas</option>
+          <option value="CA">California</option>
+          <option value="CO">Colorado</option>
+          <option value="CT">Connecticut</option>
+          <option value="DE">Delaware</option>
+          <option value="FL">Florida</option>
+          <option value="GA">Georgia</option>
+          <option value="HI">Hawaii</option>
+          <option value="ID">Idaho</option>
+          <option value="IL">Illinois</option>
+          <option value="IN">Indiana</option>
+          <option value="IA">Iowa</option>
+          <option value="KS">Kansas</option>
+          <option value="KY">Kentucky</option>
+          <option value="LA">Louisiana</option>
+          <option value="ME">Maine</option>
+          <option value="MD">Maryland</option>
+          <option value="MA">Massachusetts</option>
+          <option value="MI">Michigan</option>
+          <option value="MN">Minnesota</option>
+          <option value="MS">Mississippi</option>
+          <option value="MO">Missouri</option>
+          <option value="MT">Montana</option>
+          <option value="NE">Nebraska</option>
+          <option value="NV">Nevada</option>
+          <option value="NH">New Hampshire</option>
+          <option value="NJ">New Jersey</option>
+          <option value="NM">New Mexico</option>
+          <option value="NY">New York</option>
+          <option value="NC">North Carolina</option>
+          <option value="ND">North Dakota</option>
+          <option value="OH">Ohio</option>
+          <option value="OK">Oklahoma</option>
+          <option value="OR">Oregon</option>
+          <option value="PA">Pennsylvania</option>
+          <option value="RI">Rhode Island</option>
+          <option value="SC">South Carolina</option>
+          <option value="SD">South Dakota</option>
+          <option value="TN">Tennessee</option>
+          <option value="TX">Texas</option>
+          <option value="UT">Utah</option>
+          <option value="VT">Vermont</option>
+          <option value="VA">Virginia</option>
+          <option value="WA">Washington</option>
+          <option value="WV">West Virginia</option>
+          <option value="WI">Wisconsin</option>
+          <option value="WY">Wyoming</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Industry</label>
+        <select id="companyIndustry">
+          <option value="000000">All industries</option>
+          <option value="110000">Agriculture, forestry, fishing</option>
+          <option value="210000">Mining, quarrying, oil and gas</option>
+          <option value="230000">Construction</option>
+          <option value="310000">Manufacturing</option>
+          <option value="420000">Wholesale trade</option>
+          <option value="440000">Retail trade</option>
+          <option value="480000">Transportation and warehousing</option>
+          <option value="510000">Information</option>
+          <option value="520000">Finance and insurance</option>
+          <option value="530000">Real estate</option>
+          <option value="540000">Professional and technical services</option>
+          <option value="550000">Management of companies</option>
+          <option value="560000">Administrative and waste services</option>
+          <option value="610000">Educational services</option>
+          <option value="620000">Health care and social assistance</option>
+          <option value="710000">Arts, entertainment, recreation</option>
+          <option value="720000">Accommodation and food services</option>
+          <option value="810000">Other services</option>
+          <option value="900000">Government</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Valuation date</label>
+        <input type="date" id="valuationDate" />
+      </div>
+      <div class="form-field">
+        <label>Analyst name</label>
+        <input type="text" id="analystName" placeholder="Jane Smith, CVA" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>Report date</label>
+        <input type="date" id="reportDate" />
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:16px;">
+      <label>Company description</label>
+      <textarea id="companyDesc" placeholder="Briefly describe the company — type of business, years in operation, number of employees, revenue range, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 2: Subject Individual -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Subject individual</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Individual name</label>
+        <input type="text" id="subjectName" placeholder="John Doe" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>Title / role</label>
+        <input type="text" id="subjectTitle" placeholder="Owner / General Manager" />
+      </div>
+      <div class="form-field">
+        <label>Ownership interest (%)</label>
+        <input type="number" id="subjectOwnership" placeholder="100" min="0" max="100" />
+      </div>
+      <div class="form-field">
+        <label>Current annual compensation ($)</label>
+        <input type="number" id="subjectSalary" placeholder="120000" oninput="refreshAnalysis()" />
+      </div>
+      <div class="form-field">
+        <label>Hours per week</label>
+        <input type="number" id="subjectHours" placeholder="50" min="1" max="80" />
+      </div>
+      <div class="form-field">
+        <label>Years in role</label>
+        <input type="number" id="subjectYears" placeholder="12" min="0" />
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:16px;">
+      <label>Role description</label>
+      <textarea id="subjectDesc" placeholder="Describe this individual's duties and responsibilities — management, sales, operations, bookkeeping, field work, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 3: Occupation Model -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">Occupation model</span>
+    </div>
+
+    <div style="font-size:13px; color:#666; margin-bottom:0.75rem;">Select how to model this individual's occupation:</div>
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="occModel" value="single" checked onchange="switchModel('single')">
+        Single occupation
+      </label>
+      <label>
+        <input type="radio" name="occModel" value="blended" onchange="switchModel('blended')">
+        Blended occupation
+      </label>
+    </div>
+
+    <!-- Single model -->
+    <div id="singleModel">
+      <div class="form-grid" style="margin-bottom:1rem;">
+        <div class="form-field">
+          <label>Search occupation (optional)</label>
+          <input type="text" id="singleSearch" placeholder="e.g. manager, plumber, nurse" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="loadSingleBtn">Load BLS data</button>
+        <div id="singleStatus" class="status hidden"></div>
+        <div id="singleError" class="error hidden"></div>
+      </div>
+      <div id="singleOccPicker" class="hidden" style="margin-top:1rem;">
+        <div class="form-field">
+          <label>Select occupation group</label>
+          <select id="singleOccSelect"></select>
+        </div>
+        <div class="btn-row">
+          <button id="applySingleBtn">Apply selection</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Blended model -->
+    <div id="blendedModel" class="hidden">
+      <div class="form-grid" style="margin-bottom:1rem;">
+        <div class="form-field">
+          <label>Search occupation (optional)</label>
+          <input type="text" id="blendSearch" placeholder="e.g. manager, plumber, nurse" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button id="loadBlendedBtn">Load occupations</button>
+        <div id="blendedStatus" class="status hidden"></div>
+        <div id="blendedError" class="error hidden"></div>
+      </div>
+
+      <div id="blendedBuilder" class="hidden" style="margin-top:1rem;">
+        <div style="font-size:13px; color:#666; margin-bottom:0.75rem;">Set the percentage of time for each role. Percentages must total 100%.</div>
+        <div class="pct-total-row">
+          <span style="font-size:13px; color:#666;">Total allocated:</span>
+          <span class="pct-total-val" id="rcPctTotal">0%</span>
+          <div class="pct-bar-outer">
+            <div class="pct-bar-inner" id="rcPctBar" style="width:0%"></div>
+          </div>
+          <span style="font-size:13px; color:#666;">of 100%</span>
+        </div>
+        <div id="rcBlendRows"></div>
+        <div class="btn-row">
+          <button id="addRcRowBtn" class="btn-outline">+ Add occupation</button>
+          <button id="applyBlendedBtn">Apply blend</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Market Data -->
+  <div class="section hidden" id="section4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Market data</span>
+    </div>
+    <div style="font-size:13px; color:#666; margin-bottom:1rem;" id="marketDesc"></div>
+    <div class="metrics" id="marketMetrics"></div>
+    <div style="overflow-x:auto; margin-top:1rem;">
+      <table>
+        <thead>
+          <tr>
+            <th>Occupation group</th>
+            <th style="text-align:right;">Weight</th>
+            <th style="text-align:right;">Mean wage</th>
+            <th style="text-align:right;">Median</th>
+            <th style="text-align:right;">10th pct</th>
+            <th style="text-align:right;">25th pct</th>
+            <th style="text-align:right;">75th pct</th>
+            <th style="text-align:right;">90th pct</th>
+          </tr>
+        </thead>
+        <tbody id="marketTableBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:1.25rem;">
+      <div class="form-field">
+        <label>Methodology notes</label>
+        <textarea id="methodologyNotes" placeholder="Describe the data source, geographic market, industry selection, and any adjustments made..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: Analysis -->
+  <div class="section hidden" id="section5">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Analysis</span>
+    </div>
+
+    <div style="font-size:14px; font-weight:500; margin-bottom:0.75rem;">Subject salary positioning</div>
+    <div style="background:#f5f5f5; border-radius:10px; padding:1.25rem; margin-bottom:1.5rem;">
+      <div style="font-size:13px; color:#666; margin-bottom:0.5rem;" id="posDesc"></div>
+      <div class="positioning-bar" id="posBar">
+        <div class="pos-marker" id="posMarker" style="left:50%;"></div>
+        <div class="pos-marker-label" id="posMarkerLabel" style="left:50%;">Subject</div>
+      </div>
+      <div class="pos-labels">
+        <span>10th pct</span><span>25th pct</span><span>Median</span><span>75th pct</span><span>90th pct</span>
+      </div>
+      <div id="posTag"></div>
+    </div>
+
+    <div style="font-size:14px; font-weight:500; margin-bottom:0.75rem;">Qualitative factors</div>
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-field">
+        <label>Company size</label>
+        <select id="factorSize">
+          <option value="">Select</option>
+          <option value="small">Small — fewer than 10 employees</option>
+          <option value="medium">Medium — 10 to 50 employees</option>
+          <option value="large">Large — more than 50 employees</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Geographic market</label>
+        <select id="factorGeo">
+          <option value="">Select</option>
+          <option value="rural">Rural / small town</option>
+          <option value="suburban">Suburban</option>
+          <option value="urban">Urban / metro area</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Experience level</label>
+        <select id="factorExp">
+          <option value="">Select</option>
+          <option value="entry">Entry — less than 3 years</option>
+          <option value="mid">Mid — 3 to 10 years</option>
+          <option value="senior">Senior — more than 10 years</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Education level</label>
+        <select id="factorEdu">
+          <option value="">Select</option>
+          <option value="hs">High school diploma or equivalent</option>
+          <option value="some">Some college or associate degree</option>
+          <option value="bach">Bachelor's degree</option>
+          <option value="grad">Graduate or professional degree</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-field">
+      <label>Analyst narrative — analysis section</label>
+      <textarea id="analysisNarrative" style="min-height:120px;" placeholder="Describe the factors that support your positioning of the subject's compensation relative to the market. Consider duties, experience, education, company size, and geographic market..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 6: Conclusion -->
+  <div class="section hidden" id="section6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Conclusion</span>
+    </div>
+
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-field">
+        <label>Concluded reasonable compensation ($)</label>
+        <input type="number" id="concludedWage" placeholder="85000" oninput="updateConclusion()" />
+      </div>
+      <div class="form-field">
+        <label>Support range — low ($)</label>
+        <input type="number" id="rangeLow" placeholder="75000" oninput="updateConclusion()" />
+      </div>
+      <div class="form-field">
+        <label>Support range — high ($)</label>
+        <input type="number" id="rangeHigh" placeholder="95000" oninput="updateConclusion()" />
+      </div>
+    </div>
+
+    <div class="conclusion-box">
+      <div class="conclusion-grid">
+        <div>
+          <div class="cl">Concluded reasonable compensation</div>
+          <div class="cv" id="cvConcluded">—</div>
+        </div>
+        <div>
+          <div class="cl">Support range</div>
+          <div class="cv small" id="cvRange">—</div>
+        </div>
+        <div>
+          <div class="cl">Subject current compensation</div>
+          <div class="cv small" id="cvSubject">—</div>
+        </div>
+        <div>
+          <div class="cl">Variance (subject minus concluded)</div>
+          <div class="cv small" id="cvVariance">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field" style="margin-top:1rem;">
+      <label>Conclusion narrative</label>
+      <textarea id="conclusionNarrative" style="min-height:140px;" placeholder="State your conclusion as to reasonable compensation. Include the basis for your concluded figure, how it relates to the market data, the support range, and any caveats or qualifications..."></textarea>
+    </div>
+
+    <div class="source-box" style="margin-top:1.5rem;">
+      <strong>Data Source:</strong> U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics (OEWS) Program<br>
+      <strong>Survey:</strong> May 2024 National Occupational Employment and Wage Estimates, United States<br>
+      <strong>Retrieved:</strong> <span id="rcRetrievedDate"></span><br>
+      <strong>Reference:</strong> U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics. Washington, D.C.: U.S. Department of Labor. https://www.bls.gov/oes/<br>
+      <strong>Limitation:</strong> BLS OES data represents broad occupational categories and statewide averages across all employers. The analyst should consider the specific duties, qualifications, and market conditions applicable to the subject individual when concluding reasonable compensation. This report is prepared for internal valuation purposes only.
+    </div>
+
+    <div class="btn-row" style="margin-top:1.5rem;">
+      <button onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var rcOccupations = [];
+var rcBlendRows = [];
+var rcMarketData = null;
+var rcStateName = '';
+var BLEND_COLORS = ['#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261','#457b9d'];
+
+function fmt(val) {
+  if (!val && val !== 0) return '—';
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtVariance(val) {
+  if (!val && val !== 0) return '—';
+  var sign = val >= 0 ? '+' : '-';
+  return sign + '$' + Math.abs(Math.round(val)).toLocaleString('en-US');
+}
+
+function getIndustryName(code) {
+  var names = {
+    '000000':'All industries','110000':'Agriculture, forestry, fishing',
+    '210000':'Mining, quarrying, oil and gas','230000':'Construction',
+    '310000':'Manufacturing','420000':'Wholesale trade','440000':'Retail trade',
+    '480000':'Transportation and warehousing','510000':'Information',
+    '520000':'Finance and insurance','530000':'Real estate',
+    '540000':'Professional and technical services','550000':'Management of companies',
+    '560000':'Administrative and waste services','610000':'Educational services',
+    '620000':'Health care and social assistance','710000':'Arts, entertainment, recreation',
+    '720000':'Accommodation and food services','810000':'Other services','900000':'Government'
+  };
+  return names[code] || code;
+}
+
+function setDates() {
+  var now = new Date();
+  var formatted = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('rcRetrievedDate').textContent = formatted;
+  document.getElementById('lhDate').textContent = formatted;
+  document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+}
+
+setDates();
+
+function updateLetterhead() {
+  var company = document.getElementById('companyName').value || '';
+  var subject = document.getElementById('subjectName').value || '';
+  var analyst = document.getElementById('analystName').value || '';
+  document.getElementById('lhSubject').textContent = subject || company || 'Subject Individual';
+  document.getElementById('lhAnalyst').textContent = analyst;
+}
+
+function switchModel(model) {
+  document.getElementById('singleModel').classList.toggle('hidden', model !== 'single');
+  document.getElementById('blendedModel').classList.toggle('hidden', model !== 'blended');
+}
+
+// ── Single occupation ──────────────────────────────────────────────────────
+async function loadSingleData() {
+  var state = document.getElementById('companyState').value;
+  var industry = document.getElementById('companyIndustry').value;
+  var search = document.getElementById('singleSearch').value.trim();
+
+  document.getElementById('singleError').classList.add('hidden');
+  document.getElementById('singleOccPicker').classList.add('hidden');
+  document.getElementById('singleStatus').classList.remove('hidden');
+  document.getElementById('singleStatus').textContent = 'Loading BLS data...';
+
+  try {
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
+    var data = await res.json();
+    document.getElementById('singleStatus').classList.add('hidden');
+
+    if (!data.results || data.results.length === 0) {
+      document.getElementById('singleError').textContent = 'No occupations found. Try a different search or industry.';
+      document.getElementById('singleError').classList.remove('hidden');
+      return;
+    }
+
+    rcOccupations = data.results.filter(function(r) { return r.seriesId !== '00-0000'; });
+    rcStateName = data.state || 'National';
+
+    var sel = document.getElementById('singleOccSelect');
+    sel.innerHTML = rcOccupations.map(function(o) {
+      return '<option value="' + o.seriesId + '">' + o.title + '</option>';
+    }).join('');
+
+    document.getElementById('singleOccPicker').classList.remove('hidden');
+
+  } catch(e) {
+    document.getElementById('singleStatus').classList.add('hidden');
+    document.getElementById('singleError').textContent = 'Could not load data. Please try again.';
+    document.getElementById('singleError').classList.remove('hidden');
+  }
+}
+
+function applySingle() {
+  var soc = document.getElementById('singleOccSelect').value;
+  var occ = rcOccupations.find(function(o) { return o.seriesId === soc; });
+  if (!occ) return;
+
+  rcMarketData = {
+    type: 'single',
+    stateName: rcStateName,
+    industry: getIndustryName(document.getElementById('companyIndustry').value),
+    mean: occ.latestValue,
+    median: occ.median,
+    p10: occ.p10,
+    p25: occ.p25,
+    p75: occ.p75,
+    p90: occ.p90,
+    rows: [{ title: occ.title, weight: 100, mean: occ.latestValue, median: occ.median, p10: occ.p10, p25: occ.p25, p75: occ.p75, p90: occ.p90 }]
+  };
+
+  renderMarketData();
+}
+
+// ── Blended occupation ─────────────────────────────────────────────────────
+async function loadBlendedData() {
+  var state = document.getElementById('companyState').value;
+  var industry = document.getElementById('companyIndustry').value;
+  var search = document.getElementById('blendSearch').value.trim();
+
+  document.getElementById('blendedError').classList.add('hidden');
+  document.getElementById('blendedBuilder').classList.add('hidden');
+  document.getElementById('blendedStatus').classList.remove('hidden');
+  document.getElementById('blendedStatus').textContent = 'Loading occupations...';
+
+  try {
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
+    var data = await res.json();
+    document.getElementById('blendedStatus').classList.add('hidden');
+
+    if (!data.results || data.results.length === 0) {
+      document.getElementById('blendedError').textContent = 'No occupations found. Try a different search or industry.';
+      document.getElementById('blendedError').classList.remove('hidden');
+      return;
+    }
+
+    rcOccupations = data.results.filter(function(r) { return r.seriesId !== '00-0000'; });
+    rcStateName = data.state || 'National';
+    rcBlendRows = [];
+    renderRcBlendRows();
+    addRcBlendRow();
+    addRcBlendRow();
+    document.getElementById('blendedBuilder').classList.remove('hidden');
+
+  } catch(e) {
+    document.getElementById('blendedStatus').classList.add('hidden');
+    document.getElementById('blendedError').textContent = 'Could not load data. Please try again.';
+    document.getElementById('blendedError').classList.remove('hidden');
+  }
+}
+
+function addRcBlendRow() {
+  if (rcBlendRows.length >= 6) return;
+  var usedSocs = rcBlendRows.map(function(r) { return r.soc; });
+  var available = rcOccupations.filter(function(o) { return !usedSocs.includes(o.seriesId); });
+  if (available.length === 0) return;
+  rcBlendRows.push({ soc: available[0].seriesId, pct: 0 });
+  renderRcBlendRows();
+  updateRcPctTotal();
+}
+
+function removeRcBlendRow(i) {
+  rcBlendRows.splice(i, 1);
+  renderRcBlendRows();
+  updateRcPctTotal();
+}
+
+function renderRcBlendRows() {
+  var container = document.getElementById('rcBlendRows');
+  if (rcBlendRows.length === 0) { container.innerHTML = ''; return; }
+
+  container.innerHTML = rcBlendRows.map(function(row, i) {
+    var color = BLEND_COLORS[i % BLEND_COLORS.length];
+    var selectOptions = rcOccupations.map(function(o) {
+      var usedByOther = rcBlendRows.some(function(r, ri) { return ri !== i && r.soc === o.seriesId; });
+      if (usedByOther) return '';
+      return '<option value="' + o.seriesId + '"' + (o.seriesId === row.soc ? ' selected' : '') + '>' + o.title + '</option>';
+    }).join('');
+
+    var removeBtn = rcBlendRows.length > 1
+      ? '<button class="btn-outline btn-danger btn-small" onclick="removeRcBlendRow(' + i + ')">Remove</button>'
+      : '';
+
+    return '<div class="blend-row" style="border-left:3px solid ' + color + ';">' +
+      '<div class="blend-row-header">' +
+        '<select style="flex:1; min-width:200px;" onchange="changeRcOcc(' + i + ', this.value)">' + selectOptions + '</select>' +
+        '<div class="blend-pct-wrap">' +
+          '<span style="font-size:12px; color:#666;">Time allocation:</span>' +
+          '<input type="range" min="0" max="100" step="5" value="' + row.pct + '" oninput="changeRcPct(' + i + ', this.value)">' +
+          '<span style="font-size:14px; font-weight:500; min-width:38px;" id="rcPctVal-' + i + '">' + row.pct + '%</span>' +
+        '</div>' +
+        removeBtn +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function changeRcOcc(i, soc) {
+  rcBlendRows[i].soc = soc;
+  renderRcBlendRows();
+  updateRcPctTotal();
+}
+
+function changeRcPct(i, val) {
+  rcBlendRows[i].pct = parseInt(val);
+  document.getElementById('rcPctVal-' + i).textContent = val + '%';
+  updateRcPctTotal();
+}
+
+function updateRcPctTotal() {
+  var total = rcBlendRows.reduce(function(a,r) { return a + r.pct; }, 0);
+  var el = document.getElementById('rcPctTotal');
+  var bar = document.getElementById('rcPctBar');
+  el.textContent = total + '%';
+  el.className = 'pct-total-val' + (total > 100 ? ' over' : total === 100 ? ' exact' : '');
+  bar.style.width = Math.min(total, 100) + '%';
+  bar.className = 'pct-bar-inner' + (total > 100 ? ' over' : total === 100 ? ' exact' : '');
+}
+
+function applyBlended() {
+  var total = rcBlendRows.reduce(function(a,r) { return a + r.pct; }, 0);
+  if (total !== 100) {
+    alert('Percentages must total exactly 100% before applying. Current total: ' + total + '%');
+    return;
+  }
+
+  var bMean=0, bMedian=0, bP10=0, bP25=0, bP75=0, bP90=0;
+  var rows = [];
+
+  rcBlendRows.forEach(function(row) {
+    var occ = rcOccupations.find(function(o) { return o.seriesId === row.soc; });
+    if (!occ) return;
+    var w = row.pct / 100;
+    bMean   += (occ.latestValue || 0) * w;
+    bMedian += (occ.median || 0) * w;
+    bP10    += (occ.p10 || 0) * w;
+    bP25    += (occ.p25 || 0) * w;
+    bP75    += (occ.p75 || 0) * w;
+    bP90    += (occ.p90 || 0) * w;
+    rows.push({ title: occ.title, weight: row.pct, mean: occ.latestValue, median: occ.median, p10: occ.p10, p25: occ.p25, p75: occ.p75, p90: occ.p90 });
+  });
+
+  rcMarketData = {
+    type: 'blended',
+    stateName: rcStateName,
+    industry: getIndustryName(document.getElementById('companyIndustry').value),
+    mean: Math.round(bMean),
+    median: Math.round(bMedian),
+    p10: Math.round(bP10),
+    p25: Math.round(bP25),
+    p75: Math.round(bP75),
+    p90: Math.round(bP90),
+    rows: rows
+  };
+
+  renderMarketData();
+}
+
+// ── Market data section ────────────────────────────────────────────────────
+function renderMarketData() {
+  if (!rcMarketData) return;
+  var d = rcMarketData;
+
+  document.getElementById('marketDesc').textContent =
+    'BLS OES May 2024 data — ' + d.stateName + ' — ' + d.industry +
+    (d.type === 'blended' ? ' (blended occupation model)' : '');
+
+  document.getElementById('marketMetrics').innerHTML =
+    '<div class="metric dark"><div class="metric-label">Mean wage</div><div class="metric-value">' + fmt(d.mean) + '</div></div>' +
+    '<div class="metric dark"><div class="metric-label">Median wage</div><div class="metric-value">' + fmt(d.median) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">10th percentile</div><div class="metric-value">' + fmt(d.p10) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">25th percentile</div><div class="metric-value">' + fmt(d.p25) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">75th percentile</div><div class="metric-value">' + fmt(d.p75) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">90th percentile</div><div class="metric-value">' + fmt(d.p90) + '</div></div>';
+
+  document.getElementById('marketTableBody').innerHTML = d.rows.map(function(r) {
+    return '<tr>' +
+      '<td>' + r.title + '</td>' +
+      '<td style="text-align:right;">' + r.weight + '%</td>' +
+      '<td style="text-align:right; font-weight:500;">' + fmt(r.mean) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.median) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p10) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p25) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p75) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p90) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('section4').classList.remove('hidden');
+  renderAnalysis();
+  document.getElementById('section5').classList.remove('hidden');
+  document.getElementById('section6').classList.remove('hidden');
+  updateConclusion();
+  document.getElementById('section4').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+// ── Analysis section ───────────────────────────────────────────────────────
+function renderAnalysis() {
+  if (!rcMarketData) return;
+  var d = rcMarketData;
+  var salary = parseFloat(document.getElementById('subjectSalary').value) || 0;
+  var name = document.getElementById('subjectName').value || 'Subject individual';
+
+  document.getElementById('posDesc').textContent =
+    name + ' current compensation of ' + fmt(salary) +
+    ' compared to market range of ' + fmt(d.p10) + ' (10th pct) to ' + fmt(d.p90) + ' (90th pct).';
+
+  var min = d.p10;
+  var max = d.p90;
+  var range = max - min;
+  var pct = range > 0 ? Math.max(2, Math.min(98, ((salary - min) / range) * 100)) : 50;
+
+  document.getElementById('posMarker').style.left = pct + '%';
+  document.getElementById('posMarkerLabel').style.left = pct + '%';
+
+  var tag = '';
+  if (salary < d.p25) {
+    tag = '<span class="tag tag-below">Below 25th percentile</span>';
+  } else if (salary <= d.p75) {
+    tag = '<span class="tag tag-within">Within interquartile range (25th–75th pct)</span>';
+  } else if (salary <= d.p90) {
+    tag = '<span class="tag tag-above">Above 75th percentile</span>';
+  } else {
+    tag = '<span class="tag tag-above">Above 90th percentile</span>';
+  }
+  document.getElementById('posTag').innerHTML = tag;
+}
+
+function refreshAnalysis() {
+  if (rcMarketData) renderAnalysis();
+  updateConclusion();
+}
+
+// ── Conclusion section ─────────────────────────────────────────────────────
+function updateConclusion() {
+  var concluded = parseFloat(document.getElementById('concludedWage').value) || 0;
+  var low = parseFloat(document.getElementById('rangeLow').value) || 0;
+  var high = parseFloat(document.getElementById('rangeHigh').value) || 0;
+  var subject = parseFloat(document.getElementById('subjectSalary').value) || 0;
+  var variance = subject - concluded;
+
+  document.getElementById('cvConcluded').textContent = concluded ? fmt(concluded) : '—';
+  document.getElementById('cvRange').textContent = (low && high) ? fmt(low) + ' – ' + fmt(high) : '—';
+  document.getElementById('cvSubject').textContent = subject ? fmt(subject) : '—';
+  document.getElementById('cvVariance').textContent = (concluded && subject) ? fmtVariance(variance) : '—';
+}
+
+// ── Event listeners ────────────────────────────────────────────────────────
+document.getElementById('loadSingleBtn').addEventListener('click', loadSingleData);
+document.getElementById('applySingleBtn').addEventListener('click', applySingle);
+document.getElementById('loadBlendedBtn').addEventListener('click', loadBlendedData);
+document.getElementById('addRcRowBtn').addEventListener('click', addRcBlendRow);
+document.getElementById('applyBlendedBtn').addEventListener('click', applyBlended);
+document.getElementById('concludedWage').addEventListener('input', updateConclusion);
+document.getElementById('rangeLow').addEventListener('input', updateConclusion);
+document.getElementById('rangeHigh').addEventListener('input', updateConclusion);
+document.getElementById('subjectName').addEventListener('input', updateLetterhead);
+document.getElementById('analystName').addEventListener('input', updateLetterhead);
+document.getElementById('companyName').addEventListener('input', updateLetterhead);
+document.getElementById('subjectSalary').addEventListener('input', refreshAnalysis);
+</script>
+</body>
+</html>
