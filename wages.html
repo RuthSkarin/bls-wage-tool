@@ -204,13 +204,9 @@
           <label>Search occupation</label>
           <input type="text" id="occSearch" placeholder="e.g. nurse, accountant, engineer" />
         </div>
-      <div class="field">
-          <label>Search occupation</label>
-          <input type="text" id="blendOccSearch" placeholder="e.g. manager, nurse, accountant" />
-        </div>
       </div>
       <div class="btn-row">
-        <button id="blendLoadBtn">Load occupations</button>
+        <button id="lookupBtn">Look up wages</button>
       </div>
       <div id="errorMsg" class="error hidden"></div>
       <div id="statusMsg" class="status hidden"></div>
@@ -361,6 +357,10 @@
             <option value="810000">Other services</option>
             <option value="900000">Government</option>
           </select>
+        </div>
+        <div class="field">
+          <label>Search occupation</label>
+          <input type="text" id="blendOccSearch" placeholder="e.g. manager, nurse, accountant" />
         </div>
       </div>
       <div class="btn-row">
@@ -524,8 +524,7 @@ function toggleRow(i) {
 
 async function fetchWages() {
   var state = document.getElementById('stateSelect').value;
-  var industry = document.getElementById('blendIndustrySelect').value;
-  var search = document.getElementById('blendOccSearch').value.trim();
+  var industry = document.getElementById('industrySelect').value;
   var search = document.getElementById('occSearch').value.trim();
 
   document.getElementById('errorMsg').classList.add('hidden');
@@ -606,13 +605,14 @@ var BLEND_COLORS = ['#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261','#457b9d']
 async function loadBlendOccupations() {
   var state = document.getElementById('blendStateSelect').value;
   var industry = document.getElementById('blendIndustrySelect').value;
+  var search = document.getElementById('blendOccSearch').value.trim();
   document.getElementById('blendErrorMsg').classList.add('hidden');
   document.getElementById('blendBuilderSection').classList.add('hidden');
   document.getElementById('blendStatusMsg').classList.remove('hidden');
   document.getElementById('blendStatusMsg').textContent = 'Loading occupations...';
 
   try {
-    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry);
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
     var data = await res.json();
     document.getElementById('blendStatusMsg').classList.add('hidden');
 
