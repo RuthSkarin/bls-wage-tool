@@ -204,9 +204,13 @@
           <label>Search occupation</label>
           <input type="text" id="occSearch" placeholder="e.g. nurse, accountant, engineer" />
         </div>
+      <div class="field">
+          <label>Search occupation</label>
+          <input type="text" id="blendOccSearch" placeholder="e.g. manager, nurse, accountant" />
+        </div>
       </div>
       <div class="btn-row">
-        <button id="lookupBtn">Look up wages</button>
+        <button id="blendLoadBtn">Load occupations</button>
       </div>
       <div id="errorMsg" class="error hidden"></div>
       <div id="statusMsg" class="status hidden"></div>
@@ -520,7 +524,8 @@ function toggleRow(i) {
 
 async function fetchWages() {
   var state = document.getElementById('stateSelect').value;
-  var industry = document.getElementById('industrySelect').value;
+  var industry = document.getElementById('blendIndustrySelect').value;
+  var search = document.getElementById('blendOccSearch').value.trim();
   var search = document.getElementById('occSearch').value.trim();
 
   document.getElementById('errorMsg').classList.add('hidden');
