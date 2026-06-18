@@ -52,7 +52,11 @@
   .tab-content { display: none; }
   .tab-content.active { display: block; }
   .blend-row { background: white; border: 0.5px solid #e0e0e0; border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
-  .blend-row-header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .blend-row-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 0.75rem; }
+  .blend-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
+  .blend-row-fields label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; }
+  .blend-row-fields input, .blend-row-fields select { padding: 7px 10px; font-size: 13px; }
+  .blend-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .blend-pct-wrap { display: flex; align-items: center; gap: 8px; }
   .blend-pct-wrap input[type=range] { width: 140px; accent-color: #1a1a1a; }
   .blend-pct-value { font-size: 14px; font-weight: 500; min-width: 40px; text-align: right; }
@@ -371,8 +375,8 @@
     </div>
 
     <div id="blendBuilderSection" class="hidden">
-      <div style="font-size:14px; font-weight:500; margin-bottom:0.75rem;">Build your blended occupation</div>
-      <div style="font-size:13px; color:#666; margin-bottom:1rem;">Add occupation groups, set the percentage of time for each role, and enter hours per week. Percentages must total 100%.</div>
+      <div style="font-size:14px; font-weight:500; margin-bottom:0.25rem;">Build your blended occupation</div>
+      <div style="font-size:13px; color:#666; margin-bottom:1rem;">For each role enter a custom job title and select the closest BLS occupation group. Set the percentage of time and hours per week. Percentages must total 100%.</div>
 
       <div class="pct-total-bar">
         <span class="pct-total-label">Total allocated:</span>
@@ -436,11 +440,12 @@
             <table>
               <thead>
                 <tr>
-                  <th>Occupation group</th>
+                  <th>Custom title</th>
+                  <th>BLS occupation group</th>
                   <th style="text-align:right;">Weight</th>
                   <th style="text-align:right;">Hours / FTE</th>
                   <th style="text-align:right;">Full time mean</th>
-                  <th style="text-align:right;">Hours-adjusted mean</th>
+                  <th style="text-align:right;">Adjusted mean</th>
                 </tr>
               </thead>
               <tbody id="blendBreakdownBody"></tbody>
@@ -503,12 +508,8 @@ function setDates() {
 setDates();
 
 function switchTab(name) {
-  document.querySelectorAll('.tab-content').forEach(function(t) {
-    t.classList.remove('active');
-  });
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.classList.remove('active');
-  });
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
   document.getElementById('tab-' + name).classList.add('active');
   document.getElementById('tab' + name.charAt(0).toUpperCase() + name.slice(1) + 'Btn').classList.add('active');
 }
@@ -577,9 +578,7 @@ async function fetchWages() {
         '<td style="text-align:right; color:#999; font-size:12px;" id="arrow-' + i + '">▶</td>' +
         '</tr>' +
         '<tr class="expand-row" id="expand-' + i + '" style="display:none;">' +
-        '<td colspan="6">' +
-        '<div class="expand-inner">' +
-        '<div class="percentile-grid">' +
+        '<td colspan="6"><div class="expand-inner"><div class="percentile-grid">' +
         '<div class="percentile-item"><div class="label">10th percentile</div><strong>' + fmt(r.p10) + '</strong></div>' +
         '<div class="percentile-item"><div class="label">25th percentile</div><strong>' + fmt(r.p25) + '</strong></div>' +
         '<div class="percentile-item"><div class="label">75th percentile</div><strong>' + fmt(r.p75) + '</strong></div>' +
@@ -643,7 +642,7 @@ function addBlendRow() {
   var usedSocs = blendRows.map(function(r) { return r.soc; });
   var available = blendOccupations.filter(function(o) { return !usedSocs.includes(o.seriesId); });
   if (available.length === 0) return;
-  blendRows.push({ soc: available[0].seriesId, pct: 0, hours: 40 });
+  blendRows.push({ soc: available[0].seriesId, customTitle: '', pct: 0, hours: 40 });
   renderBlendRows();
   updatePctTotal();
 }
@@ -691,8 +690,17 @@ function renderBlendRows() {
 
     return (
       '<div class="blend-row" style="border-left:3px solid ' + color + ';">' +
-        '<div class="blend-row-header">' +
-          '<select style="flex:1; min-width:200px;" onchange="changeBlendOcc(' + i + ', this.value)">' + selectOptions + '</select>' +
+        '<div class="blend-row-fields">' +
+          '<div>' +
+            '<label>Custom job title</label>' +
+            '<input type="text" placeholder="e.g. Owner / General Manager" value="' + (row.customTitle || '') + '" oninput="changeBlendTitle(' + i + ', this.value)" />' +
+          '</div>' +
+          '<div>' +
+            '<label>BLS occupation group (for wage data)</label>' +
+            '<select onchange="changeBlendOcc(' + i + ', this.value)">' + selectOptions + '</select>' +
+          '</div>' +
+        '</div>' +
+        '<div class="blend-row-top">' +
           '<div class="blend-pct-wrap">' +
             '<span style="font-size:12px; color:#666; white-space:nowrap;">Time allocation:</span>' +
             '<input type="range" min="0" max="100" step="5" value="' + row.pct + '" oninput="changeBlendPct(' + i + ', this.value)">' +
@@ -709,6 +717,10 @@ function renderBlendRows() {
       '</div>'
     );
   }).join('');
+}
+
+function changeBlendTitle(i, val) {
+  blendRows[i].customTitle = val;
 }
 
 function changeBlendOcc(i, soc) {
@@ -762,7 +774,15 @@ function calculateBlend() {
     bP90       += (occ.p90 || 0) * w;
     bMeanAdj   += (occ.latestValue || 0) * w * fte;
     bMedianAdj += (occ.median || 0) * w * fte;
-    return { occ:occ, pct:row.pct, hours:hours, fte:Math.round(fte*100), adjMean:Math.round((occ.latestValue||0)*w*fte) };
+    return {
+      customTitle: row.customTitle || occ.title,
+      blsTitle: occ.title,
+      pct: row.pct,
+      hours: hours,
+      fte: Math.round(fte * 100),
+      fteMean: occ.latestValue,
+      adjMean: Math.round((occ.latestValue || 0) * w * fte)
+    };
   }).filter(Boolean);
 
   document.getElementById('blendMean').textContent    = fmt(Math.round(bMean));
@@ -787,12 +807,13 @@ function calculateBlend() {
 
   document.getElementById('blendBreakdownBody').innerHTML = breakdown.map(function(b) {
     return '<tr>' +
-      '<td>' + b.occ.title + '</td>' +
+      '<td style="font-weight:500;">' + b.customTitle + '</td>' +
+      '<td style="color:#666; font-size:12px;">' + b.blsTitle + '</td>' +
       '<td style="text-align:right;">' + b.pct + '%</td>' +
       '<td style="text-align:right;">' + b.hours + ' hrs/wk (' + b.fte + '% FTE)</td>' +
-      '<td style="text-align:right; font-weight:500;">' + fmt(b.occ.latestValue) + '</td>' +
+      '<td style="text-align:right; font-weight:500;">' + fmt(b.fteMean) + '</td>' +
       '<td style="text-align:right;">' + fmt(b.adjMean) + '</td>' +
-      '</tr>';
+    '</tr>';
   }).join('');
 
   document.getElementById('blendResultSection').classList.remove('hidden');
