@@ -40,8 +40,8 @@
   .percentile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 13px; }
   .percentile-item .label { color: #666; margin-bottom: 2px; }
   .percentile-item strong { font-size: 15px; }
-  .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
-  .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
+  .error { color: #c0392b; font-size: 13px; padding: 0.4rem 0; }
+  .status { color: #666; font-size: 13px; padding: 0.4rem 0; }
   .hidden { display: none; }
   .source-box { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 13px; color: #666; line-height: 1.6; }
   .source-box strong { color: #1a1a1a; }
@@ -52,10 +52,11 @@
   .tab-content { display: none; }
   .tab-content.active { display: block; }
   .blend-row { background: white; border: 0.5px solid #e0e0e0; border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
-  .blend-row-top { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 0.75rem; }
-  .blend-row-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 0.75rem; }
+  .blend-row-fields { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 8px; align-items: end; margin-bottom: 0.75rem; }
   .blend-row-fields label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; }
   .blend-row-fields input, .blend-row-fields select { padding: 7px 10px; font-size: 13px; }
+  .blend-row-picker { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 0.75rem; }
+  .blend-row-picker label { font-size: 11px; color: #666; display: block; margin-bottom: 3px; }
   .blend-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
   .blend-pct-wrap { display: flex; align-items: center; gap: 8px; }
   .blend-pct-wrap input[type=range] { width: 140px; accent-color: #1a1a1a; }
@@ -77,6 +78,7 @@
   .blend-result-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; }
   .blend-result-item .blend-result-label { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
   .blend-result-item .blend-result-val { font-size: 22px; font-weight: 500; }
+  .row-divider { border-top: 0.5px solid #f0f0f0; margin: 0.75rem 0; }
   .print-header { display: none; }
   @media print {
     nav { display: none; }
@@ -185,6 +187,7 @@
             <option value="000000">All industries</option>
             <option value="110000">Agriculture, forestry, fishing</option>
             <option value="210000">Mining, quarrying, oil and gas</option>
+            <option value="220000">Utilities</option>
             <option value="230000">Construction</option>
             <option value="310000">Manufacturing</option>
             <option value="420000">Wholesale trade</option>
@@ -194,10 +197,16 @@
             <option value="520000">Finance and insurance</option>
             <option value="530000">Real estate</option>
             <option value="540000">Professional and technical services</option>
+            <option value="541100">— Legal services</option>
+            <option value="541200">— Accounting services</option>
+            <option value="541500">— Computer systems design</option>
+            <option value="541300">— Engineering services</option>
             <option value="550000">Management of companies</option>
             <option value="560000">Administrative and waste services</option>
             <option value="610000">Educational services</option>
             <option value="620000">Health care and social assistance</option>
+            <option value="622000">— Hospitals</option>
+            <option value="623000">— Nursing and residential care</option>
             <option value="710000">Arts, entertainment, recreation</option>
             <option value="720000">Accommodation and food services</option>
             <option value="810000">Other services</option>
@@ -281,8 +290,8 @@
   <div class="tab-content" id="tab-blended">
     <div class="card no-print">
       <div class="row">
-        <div class="field">
-          <label>State</label>
+        <div class="field" style="max-width:260px;">
+          <label>State (applies to all roles)</label>
           <select id="blendStateSelect">
             <option value="national">National (All states)</option>
             <option value="AL">Alabama</option>
@@ -337,46 +346,13 @@
             <option value="WY">Wyoming</option>
           </select>
         </div>
-        <div class="field">
-          <label>Industry</label>
-          <select id="blendIndustrySelect">
-            <option value="000000">All industries</option>
-            <option value="110000">Agriculture, forestry, fishing</option>
-            <option value="210000">Mining, quarrying, oil and gas</option>
-            <option value="230000">Construction</option>
-            <option value="310000">Manufacturing</option>
-            <option value="420000">Wholesale trade</option>
-            <option value="440000">Retail trade</option>
-            <option value="480000">Transportation and warehousing</option>
-            <option value="510000">Information</option>
-            <option value="520000">Finance and insurance</option>
-            <option value="530000">Real estate</option>
-            <option value="540000">Professional and technical services</option>
-            <option value="550000">Management of companies</option>
-            <option value="560000">Administrative and waste services</option>
-            <option value="610000">Educational services</option>
-            <option value="620000">Health care and social assistance</option>
-            <option value="710000">Arts, entertainment, recreation</option>
-            <option value="720000">Accommodation and food services</option>
-            <option value="810000">Other services</option>
-            <option value="900000">Government</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Search occupation</label>
-          <input type="text" id="blendOccSearch" placeholder="e.g. manager, nurse, accountant" />
-        </div>
       </div>
-      <div class="btn-row">
-        <button id="blendLoadBtn">Load occupations</button>
-      </div>
-      <div id="blendErrorMsg" class="error hidden"></div>
-      <div id="blendStatusMsg" class="status hidden"></div>
+      <div style="font-size:13px; color:#666;">Each role below has its own industry filter and search box — pick a different sector or occupation independently for every role in the blend.</div>
     </div>
 
-    <div id="blendBuilderSection" class="hidden">
+    <div id="blendBuilderSection">
       <div style="font-size:14px; font-weight:500; margin-bottom:0.25rem;">Build your blended occupation</div>
-      <div style="font-size:13px; color:#666; margin-bottom:1rem;">For each role enter a custom job title and select the closest BLS occupation group. Set the percentage of time and hours per week. Percentages must total 100%.</div>
+      <div style="font-size:13px; color:#666; margin-bottom:1rem;">For each role: enter a custom job title, filter by industry and/or search, click Search, then pick the closest BLS occupation match. Percentages must total 100%.</div>
 
       <div class="pct-total-bar">
         <span class="pct-total-label">Total allocated:</span>
@@ -458,7 +434,7 @@
           <strong>Survey:</strong> May 2024 National Occupational Employment and Wage Estimates, United States<br>
           <strong>Retrieved:</strong> <span id="blendRetrievedDate"></span><br>
           <strong>Reference:</strong> U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics. Washington, D.C.: U.S. Department of Labor. https://www.bls.gov/oes/<br>
-          <strong>Methodology:</strong> Blended compensation is calculated as a weighted average of BLS OES mean annual wages for each selected occupation group, with weights representing the estimated percentage of time the subject individual spends in each role. Hours-adjusted wages account for part time schedules by applying a fraction of the full time equivalent (FTE = hours per week divided by 40).<br>
+          <strong>Methodology:</strong> Blended compensation is calculated as a weighted average of BLS OES mean annual wages for each independently selected occupation group, with weights representing the estimated percentage of time the subject individual spends in each role. Hours-adjusted wages account for part time schedules by applying a fraction of the full time equivalent (FTE = hours per week divided by 40).<br>
           <strong>Note:</strong> This data is used for internal business valuation purposes only. All figures should be verified against the most current BLS OES release prior to use in a formal valuation report.
         </div>
       </div>
@@ -484,17 +460,49 @@ function fmtEmp(val) {
 function getIndustryName(code) {
   var names = {
     '000000':'All industries','110000':'Agriculture, forestry, fishing',
-    '210000':'Mining, quarrying, oil and gas','230000':'Construction',
+    '210000':'Mining, quarrying, oil and gas','220000':'Utilities','230000':'Construction',
     '310000':'Manufacturing','420000':'Wholesale trade','440000':'Retail trade',
     '480000':'Transportation and warehousing','510000':'Information',
     '520000':'Finance and insurance','530000':'Real estate',
-    '540000':'Professional and technical services','550000':'Management of companies',
-    '560000':'Administrative and waste services','610000':'Educational services',
-    '620000':'Health care and social assistance','710000':'Arts, entertainment, recreation',
+    '540000':'Professional and technical services','541100':'Legal services',
+    '541200':'Accounting services','541500':'Computer systems design','541300':'Engineering services',
+    '550000':'Management of companies','560000':'Administrative and waste services',
+    '610000':'Educational services','620000':'Health care and social assistance',
+    '622000':'Hospitals','623000':'Nursing and residential care',
+    '710000':'Arts, entertainment, recreation',
     '720000':'Accommodation and food services','810000':'Other services','900000':'Government'
   };
   return names[code] || code;
 }
+
+var INDUSTRY_OPTIONS_HTML =
+  '<option value="000000">All industries</option>' +
+  '<option value="110000">Agriculture, forestry, fishing</option>' +
+  '<option value="210000">Mining, quarrying, oil and gas</option>' +
+  '<option value="220000">Utilities</option>' +
+  '<option value="230000">Construction</option>' +
+  '<option value="310000">Manufacturing</option>' +
+  '<option value="420000">Wholesale trade</option>' +
+  '<option value="440000">Retail trade</option>' +
+  '<option value="480000">Transportation and warehousing</option>' +
+  '<option value="510000">Information</option>' +
+  '<option value="520000">Finance and insurance</option>' +
+  '<option value="530000">Real estate</option>' +
+  '<option value="540000">Professional and technical services</option>' +
+  '<option value="541100">— Legal services</option>' +
+  '<option value="541200">— Accounting services</option>' +
+  '<option value="541500">— Computer systems design</option>' +
+  '<option value="541300">— Engineering services</option>' +
+  '<option value="550000">Management of companies</option>' +
+  '<option value="560000">Administrative and waste services</option>' +
+  '<option value="610000">Educational services</option>' +
+  '<option value="620000">Health care and social assistance</option>' +
+  '<option value="622000">— Hospitals</option>' +
+  '<option value="623000">— Nursing and residential care</option>' +
+  '<option value="710000">Arts, entertainment, recreation</option>' +
+  '<option value="720000">Accommodation and food services</option>' +
+  '<option value="810000">Other services</option>' +
+  '<option value="900000">Government</option>';
 
 function setDates() {
   var now = new Date();
@@ -595,54 +603,32 @@ async function fetchWages() {
 
 document.getElementById('lookupBtn').addEventListener('click', fetchWages);
 
-// ── Blended Occupation ─────────────────────────────────────────────────────
-var blendOccupations = [];
+// ── Blended Occupation (independent per-row search) ────────────────────────
+// Each row carries its OWN industry filter, search term, fetched option list,
+// and selected SOC code — entirely independent of every other row.
 var blendRows = [];
-var blendStateName = '';
 var BLEND_COLORS = ['#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261','#457b9d'];
+var blendRowSeq = 0;
 
-async function loadBlendOccupations() {
-  var state = document.getElementById('blendStateSelect').value;
-  var industry = document.getElementById('blendIndustrySelect').value;
-  var search = document.getElementById('blendOccSearch').value.trim();
-  document.getElementById('blendErrorMsg').classList.add('hidden');
-  document.getElementById('blendBuilderSection').classList.add('hidden');
-  document.getElementById('blendStatusMsg').classList.remove('hidden');
-  document.getElementById('blendStatusMsg').textContent = 'Loading occupations...';
-
-  try {
-    var res = await fetch('/api/wages?state=' + state + '&industry=' + industry + '&search=' + encodeURIComponent(search));
-    var data = await res.json();
-    document.getElementById('blendStatusMsg').classList.add('hidden');
-
-    if (!data.results || data.results.length === 0) {
-      document.getElementById('blendErrorMsg').textContent = 'Could not load occupations for this selection.';
-      document.getElementById('blendErrorMsg').classList.remove('hidden');
-      return;
-    }
-
-    blendOccupations = data.results.filter(function(r) { return r.seriesId !== '00-0000'; });
-    blendStateName = data.state || 'National';
-    blendRows = [];
-    renderBlendRows();
-    addBlendRow();
-    addBlendRow();
-    document.getElementById('blendResultSection').classList.add('hidden');
-    document.getElementById('blendBuilderSection').classList.remove('hidden');
-
-  } catch(e) {
-    document.getElementById('blendStatusMsg').classList.add('hidden');
-    document.getElementById('blendErrorMsg').textContent = 'Could not load data. Please try again.';
-    document.getElementById('blendErrorMsg').classList.remove('hidden');
-  }
+function newBlendRow() {
+  blendRowSeq += 1;
+  return {
+    key: blendRowSeq,
+    customTitle: '',
+    industry: '000000',
+    search: '',
+    options: [],
+    soc: null,
+    pct: 0,
+    hours: 40,
+    status: '',
+    error: ''
+  };
 }
 
 function addBlendRow() {
   if (blendRows.length >= 6) return;
-  var usedSocs = blendRows.map(function(r) { return r.soc; });
-  var available = blendOccupations.filter(function(o) { return !usedSocs.includes(o.seriesId); });
-  if (available.length === 0) return;
-  blendRows.push({ soc: available[0].seriesId, customTitle: '', pct: 0, hours: 40 });
+  blendRows.push(newBlendRow());
   renderBlendRows();
   updatePctTotal();
 }
@@ -653,27 +639,69 @@ function removeBlendRow(i) {
   updatePctTotal();
 }
 
+async function searchBlendRow(i) {
+  var row = blendRows[i];
+  row.industry = document.getElementById('rowIndustry-' + i).value;
+  row.search = document.getElementById('rowSearch-' + i).value.trim();
+  row.error = '';
+  row.status = 'Searching...';
+  renderBlendRows();
+
+  var state = document.getElementById('blendStateSelect').value;
+
+  try {
+    var res = await fetch('/api/wages?state=' + state + '&industry=' + row.industry + '&search=' + encodeURIComponent(row.search));
+    var data = await res.json();
+    var results = (data.results || []).filter(function(r) { return r.seriesId !== '00-0000'; });
+
+    row.status = '';
+    if (results.length === 0) {
+      row.options = [];
+      row.soc = null;
+      row.error = 'No occupations found for this filter. Try a different industry or search term.';
+    } else {
+      row.options = results;
+      row.soc = results[0].seriesId;
+      row.error = '';
+    }
+  } catch (e) {
+    row.status = '';
+    row.error = 'Could not load occupations. Please try again.';
+  }
+
+  renderBlendRows();
+  updatePctTotal();
+}
+
 function renderBlendRows() {
   var container = document.getElementById('blendRows');
   if (blendRows.length === 0) { container.innerHTML = ''; return; }
 
   container.innerHTML = blendRows.map(function(row, i) {
-    var occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
     var color = BLEND_COLORS[i % BLEND_COLORS.length];
     var hours = row.hours || 40;
     var fte = Math.round((hours / 40) * 100);
+    var occ = row.options.find(function(o) { return o.seriesId === row.soc; });
     var adjMean = occ ? Math.round((occ.latestValue || 0) * (hours / 40)) : 0;
     var adjMedian = occ ? Math.round((occ.median || 0) * (hours / 40)) : 0;
 
-    var selectOptions = blendOccupations.map(function(o) {
-      var usedByOther = blendRows.some(function(r, ri) { return ri !== i && r.soc === o.seriesId; });
-      if (usedByOther) return '';
-      return '<option value="' + o.seriesId + '"' + (o.seriesId === row.soc ? ' selected' : '') + '>' + o.title + '</option>';
-    }).join('');
+    var occSelectHtml;
+    if (row.options.length === 0) {
+      occSelectHtml = '<select disabled><option>Search to find occupations</option></select>';
+    } else {
+      occSelectHtml = '<select onchange="changeBlendOcc(' + i + ', this.value)">' +
+        row.options.map(function(o) {
+          return '<option value="' + o.seriesId + '"' + (o.seriesId === row.soc ? ' selected' : '') + '>' + o.title + '</option>';
+        }).join('') +
+        '</select>';
+    }
 
     var removeBtn = blendRows.length > 1
-      ? '<button class="btn-outline btn-danger btn-small" onclick="removeBlendRow(' + i + ')">Remove</button>'
+      ? '<button class="btn-outline btn-danger btn-small" onclick="removeBlendRow(' + i + ')">Remove role</button>'
       : '';
+
+    var statusHtml = row.status ? '<div class="status">' + row.status + '</div>' : '';
+    var errorHtml = row.error ? '<div class="error">' + row.error + '</div>' : '';
 
     var wageDetails = occ ? (
       '<div class="blend-wages">' +
@@ -690,17 +718,35 @@ function renderBlendRows() {
 
     return (
       '<div class="blend-row" style="border-left:3px solid ' + color + ';">' +
+
         '<div class="blend-row-fields">' +
           '<div>' +
             '<label>Custom job title</label>' +
             '<input type="text" placeholder="e.g. Owner / General Manager" value="' + (row.customTitle || '') + '" oninput="changeBlendTitle(' + i + ', this.value)" />' +
           '</div>' +
           '<div>' +
-            '<label>BLS occupation group (for wage data)</label>' +
-            '<select onchange="changeBlendOcc(' + i + ', this.value)">' + selectOptions + '</select>' +
+            '<label>Industry filter</label>' +
+            '<select id="rowIndustry-' + i + '">' + INDUSTRY_OPTIONS_HTML.replace('value="' + row.industry + '"', 'value="' + row.industry + '" selected') + '</select>' +
+          '</div>' +
+          '<div>' +
+            '<label>Search occupation</label>' +
+            '<input type="text" id="rowSearch-' + i + '" placeholder="e.g. plumber, nurse" value="' + (row.search || '') + '" />' +
+          '</div>' +
+          '<div>' +
+            '<button class="btn-outline btn-small" onclick="searchBlendRow(' + i + ')" style="white-space:nowrap;">Search</button>' +
           '</div>' +
         '</div>' +
-        '<div class="blend-row-top">' +
+
+        statusHtml + errorHtml +
+
+        '<div class="blend-row-picker">' +
+          '<label>BLS occupation group (drives the wage data)</label>' +
+          occSelectHtml +
+        '</div>' +
+
+        '<div class="row-divider"></div>' +
+
+        '<div class="blend-controls">' +
           '<div class="blend-pct-wrap">' +
             '<span style="font-size:12px; color:#666; white-space:nowrap;">Time allocation:</span>' +
             '<input type="range" min="0" max="100" step="5" value="' + row.pct + '" oninput="changeBlendPct(' + i + ', this.value)">' +
@@ -709,10 +755,11 @@ function renderBlendRows() {
           '<div style="display:flex; align-items:center; gap:6px;">' +
             '<span style="font-size:12px; color:#666; white-space:nowrap;">Hrs/week:</span>' +
             '<input type="number" min="1" max="80" value="' + hours + '" style="width:64px; padding:6px 8px; font-size:13px;" oninput="changeBlendHours(' + i + ', this.value)">' +
-            '<span style="font-size:12px; color:#666; white-space:nowrap;" id="fteLabel-' + i + '">(' + fte + '% FTE)</span>' +
+            '<span style="font-size:12px; color:#666; white-space:nowrap;">(' + fte + '% FTE)</span>' +
           '</div>' +
           removeBtn +
         '</div>' +
+
         wageDetails +
       '</div>'
     );
@@ -726,12 +773,12 @@ function changeBlendTitle(i, val) {
 function changeBlendOcc(i, soc) {
   blendRows[i].soc = soc;
   renderBlendRows();
-  updatePctTotal();
 }
 
 function changeBlendPct(i, val) {
   blendRows[i].pct = parseInt(val);
-  document.getElementById('blendPctVal-' + i).textContent = val + '%';
+  var el = document.getElementById('blendPctVal-' + i);
+  if (el) el.textContent = val + '%';
   updatePctTotal();
 }
 
@@ -758,10 +805,16 @@ function calculateBlend() {
     return;
   }
 
+  var missing = blendRows.some(function(r) { return !r.soc; });
+  if (missing) {
+    alert('Every role needs a BLS occupation selected. Use the Search button on each role first.');
+    return;
+  }
+
   var bMean=0, bMedian=0, bP10=0, bP25=0, bP75=0, bP90=0, bMeanAdj=0, bMedianAdj=0;
 
   var breakdown = blendRows.map(function(row) {
-    var occ = blendOccupations.find(function(o) { return o.seriesId === row.soc; });
+    var occ = row.options.find(function(o) { return o.seriesId === row.soc; });
     if (!occ) return null;
     var w = row.pct / 100;
     var hours = row.hours || 40;
@@ -785,13 +838,16 @@ function calculateBlend() {
     };
   }).filter(Boolean);
 
+  var stateSelect = document.getElementById('blendStateSelect');
+  var stateName = stateSelect.options[stateSelect.selectedIndex].text;
+
   document.getElementById('blendMean').textContent    = fmt(Math.round(bMean));
   document.getElementById('blendMedian').textContent  = fmt(Math.round(bMedian));
   document.getElementById('blendP10').textContent     = fmt(Math.round(bP10));
   document.getElementById('blendP25').textContent     = fmt(Math.round(bP25));
   document.getElementById('blendP75').textContent     = fmt(Math.round(bP75));
   document.getElementById('blendP90').textContent     = fmt(Math.round(bP90));
-  document.getElementById('blendStateName').textContent = blendStateName;
+  document.getElementById('blendStateName').textContent = stateName;
 
   var existAdj = document.getElementById('blendAdjRow');
   if (existAdj) existAdj.remove();
@@ -820,9 +876,12 @@ function calculateBlend() {
   document.getElementById('blendResultSection').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-document.getElementById('blendLoadBtn').addEventListener('click', loadBlendOccupations);
 document.getElementById('addBlendRowBtn').addEventListener('click', addBlendRow);
 document.getElementById('calcBlendBtn').addEventListener('click', calculateBlend);
+
+// Seed two empty rows on load so the blended tab isn't empty
+addBlendRow();
+addBlendRow();
 </script>
 </body>
 </html>
