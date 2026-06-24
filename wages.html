@@ -185,32 +185,92 @@
           <label>Industry</label>
           <select id="industrySelect">
             <option value="000000">All industries</option>
-            <option value="110000">Agriculture, forestry, fishing</option>
-            <option value="210000">Mining, quarrying, oil and gas</option>
-            <option value="220000">Utilities</option>
-            <option value="230000">Construction</option>
-            <option value="310000">Manufacturing</option>
-            <option value="420000">Wholesale trade</option>
-            <option value="440000">Retail trade</option>
-            <option value="480000">Transportation and warehousing</option>
-            <option value="510000">Information</option>
-            <option value="520000">Finance and insurance</option>
-            <option value="530000">Real estate</option>
-            <option value="540000">Professional and technical services</option>
-            <option value="541100">— Legal services</option>
-            <option value="541200">— Accounting services</option>
-            <option value="541500">— Computer systems design</option>
-            <option value="541300">— Engineering services</option>
-            <option value="550000">Management of companies</option>
-            <option value="560000">Administrative and waste services</option>
-            <option value="610000">Educational services</option>
-            <option value="620000">Health care and social assistance</option>
-            <option value="622000">— Hospitals</option>
-            <option value="623000">— Nursing and residential care</option>
-            <option value="710000">Arts, entertainment, recreation</option>
-            <option value="720000">Accommodation and food services</option>
-            <option value="810000">Other services</option>
-            <option value="900000">Government</option>
+            <optgroup label="Agriculture &amp; Natural Resources">
+              <option value="110000">Agriculture, forestry, fishing</option>
+              <option value="210000">Mining, quarrying, oil and gas</option>
+              <option value="220000">Utilities</option>
+            </optgroup>
+            <optgroup label="Construction &amp; Manufacturing">
+              <option value="230000">Construction</option>
+              <option value="310000">Manufacturing</option>
+              <option value="311800">— Bakeries</option>
+              <option value="312000">— Breweries and wineries</option>
+              <option value="323000">— Printing</option>
+            </optgroup>
+            <optgroup label="Retail Trade">
+              <option value="440000">Retail trade</option>
+              <option value="441000">— Auto dealerships</option>
+              <option value="442000">— Furniture stores</option>
+              <option value="444000">— Hardware and building supply</option>
+              <option value="445000">— Specialty food stores</option>
+              <option value="451000">— Sporting goods and hobby stores</option>
+              <option value="459140">— Florists</option>
+              <option value="459910">— Pet stores</option>
+            </optgroup>
+            <optgroup label="Wholesale Trade">
+              <option value="420000">Wholesale trade</option>
+            </optgroup>
+            <optgroup label="Transportation &amp; Logistics">
+              <option value="480000">Transportation and warehousing</option>
+              <option value="484000">— Trucking</option>
+              <option value="492000">— Couriers and messengers</option>
+              <option value="493000">— Warehousing and storage</option>
+            </optgroup>
+            <optgroup label="Information">
+              <option value="510000">Information</option>
+            </optgroup>
+            <optgroup label="Finance, Insurance &amp; Real Estate">
+              <option value="520000">Finance and insurance</option>
+              <option value="530000">Real estate</option>
+            </optgroup>
+            <optgroup label="Professional &amp; Technical Services">
+              <option value="540000">Professional and technical services</option>
+              <option value="541100">— Legal services</option>
+              <option value="541200">— Accounting services</option>
+              <option value="541213">— Tax preparation services</option>
+              <option value="541214">— Bookkeeping services</option>
+              <option value="541300">— Engineering services</option>
+              <option value="541500">— Computer systems design</option>
+              <option value="541512">— IT consulting</option>
+              <option value="541920">— Photography studios</option>
+              <option value="541940">— Veterinary services</option>
+            </optgroup>
+            <optgroup label="Management &amp; Administrative">
+              <option value="550000">Management of companies</option>
+              <option value="560000">Administrative and waste services</option>
+              <option value="561700">— Landscaping services</option>
+              <option value="561720">— Janitorial services</option>
+            </optgroup>
+            <optgroup label="Education">
+              <option value="610000">Educational services</option>
+              <option value="624400">— Child day care services</option>
+            </optgroup>
+            <optgroup label="Health Care &amp; Social Assistance">
+              <option value="620000">Health care and social assistance</option>
+              <option value="621100">— Offices of physicians</option>
+              <option value="621200">— Dental offices</option>
+              <option value="621300">— Optometry and health practitioners</option>
+              <option value="621400">— Physical therapy / outpatient care</option>
+              <option value="621600">— Home health care services</option>
+              <option value="622000">— Hospitals</option>
+              <option value="623000">— Nursing and residential care</option>
+            </optgroup>
+            <optgroup label="Arts, Entertainment &amp; Recreation">
+              <option value="710000">Arts, entertainment, recreation</option>
+            </optgroup>
+            <optgroup label="Accommodation &amp; Food Services">
+              <option value="720000">Accommodation and food services</option>
+            </optgroup>
+            <optgroup label="Personal &amp; Other Services">
+              <option value="810000">Other services</option>
+              <option value="811100">— Auto repair and maintenance</option>
+              <option value="812110">— Beauty salons and barbershops</option>
+              <option value="812200">— Funeral homes</option>
+              <option value="812300">— Dry cleaning and laundry</option>
+            </optgroup>
+            <optgroup label="Government">
+              <option value="900000">Government</option>
+            </optgroup>
           </select>
         </div>
         <div class="field">
@@ -459,50 +519,156 @@ function fmtEmp(val) {
 
 function getIndustryName(code) {
   var names = {
-    '000000':'All industries','110000':'Agriculture, forestry, fishing',
-    '210000':'Mining, quarrying, oil and gas','220000':'Utilities','230000':'Construction',
-    '310000':'Manufacturing','420000':'Wholesale trade','440000':'Retail trade',
-    '480000':'Transportation and warehousing','510000':'Information',
-    '520000':'Finance and insurance','530000':'Real estate',
-    '540000':'Professional and technical services','541100':'Legal services',
-    '541200':'Accounting services','541500':'Computer systems design','541300':'Engineering services',
-    '550000':'Management of companies','560000':'Administrative and waste services',
-    '610000':'Educational services','620000':'Health care and social assistance',
-    '622000':'Hospitals','623000':'Nursing and residential care',
+    '000000':'All industries',
+    '110000':'Agriculture, forestry, fishing',
+    '210000':'Mining, quarrying, oil and gas',
+    '220000':'Utilities',
+    '230000':'Construction',
+    '310000':'Manufacturing',
+    '311800':'Bakeries',
+    '312000':'Breweries and wineries',
+    '323000':'Printing',
+    '420000':'Wholesale trade',
+    '440000':'Retail trade',
+    '441000':'Auto dealerships',
+    '442000':'Furniture stores',
+    '444000':'Hardware and building supply',
+    '445000':'Specialty food stores',
+    '451000':'Sporting goods and hobby stores',
+    '459140':'Florists',
+    '459910':'Pet stores',
+    '480000':'Transportation and warehousing',
+    '484000':'Trucking',
+    '492000':'Couriers and messengers',
+    '493000':'Warehousing and storage',
+    '510000':'Information',
+    '520000':'Finance and insurance',
+    '530000':'Real estate',
+    '540000':'Professional and technical services',
+    '541100':'Legal services',
+    '541200':'Accounting services',
+    '541213':'Tax preparation services',
+    '541214':'Bookkeeping services',
+    '541300':'Engineering services',
+    '541500':'Computer systems design',
+    '541512':'IT consulting',
+    '541920':'Photography studios',
+    '541940':'Veterinary services',
+    '550000':'Management of companies',
+    '560000':'Administrative and waste services',
+    '561700':'Landscaping services',
+    '561720':'Janitorial services',
+    '610000':'Educational services',
+    '620000':'Health care and social assistance',
+    '621100':'Offices of physicians',
+    '621200':'Dental offices',
+    '621300':'Optometry and health practitioners',
+    '621400':'Physical therapy / outpatient care',
+    '621600':'Home health care services',
+    '622000':'Hospitals',
+    '623000':'Nursing and residential care',
+    '624400':'Child day care services',
     '710000':'Arts, entertainment, recreation',
-    '720000':'Accommodation and food services','810000':'Other services','900000':'Government'
+    '720000':'Accommodation and food services',
+    '810000':'Other services',
+    '811100':'Auto repair and maintenance',
+    '812110':'Beauty salons and barbershops',
+    '812200':'Funeral homes',
+    '812300':'Dry cleaning and laundry',
+    '900000':'Government'
   };
   return names[code] || code;
 }
 
+// Industry options HTML used in each blended row — must stay in sync with single tab dropdowns
 var INDUSTRY_OPTIONS_HTML =
   '<option value="000000">All industries</option>' +
+  '<optgroup label="Agriculture &amp; Natural Resources">' +
   '<option value="110000">Agriculture, forestry, fishing</option>' +
   '<option value="210000">Mining, quarrying, oil and gas</option>' +
   '<option value="220000">Utilities</option>' +
+  '</optgroup>' +
+  '<optgroup label="Construction &amp; Manufacturing">' +
   '<option value="230000">Construction</option>' +
   '<option value="310000">Manufacturing</option>' +
-  '<option value="420000">Wholesale trade</option>' +
+  '<option value="311800">— Bakeries</option>' +
+  '<option value="312000">— Breweries and wineries</option>' +
+  '<option value="323000">— Printing</option>' +
+  '</optgroup>' +
+  '<optgroup label="Retail Trade">' +
   '<option value="440000">Retail trade</option>' +
+  '<option value="441000">— Auto dealerships</option>' +
+  '<option value="442000">— Furniture stores</option>' +
+  '<option value="444000">— Hardware and building supply</option>' +
+  '<option value="445000">— Specialty food stores</option>' +
+  '<option value="451000">— Sporting goods and hobby stores</option>' +
+  '<option value="459140">— Florists</option>' +
+  '<option value="459910">— Pet stores</option>' +
+  '</optgroup>' +
+  '<optgroup label="Wholesale Trade">' +
+  '<option value="420000">Wholesale trade</option>' +
+  '</optgroup>' +
+  '<optgroup label="Transportation &amp; Logistics">' +
   '<option value="480000">Transportation and warehousing</option>' +
+  '<option value="484000">— Trucking</option>' +
+  '<option value="492000">— Couriers and messengers</option>' +
+  '<option value="493000">— Warehousing and storage</option>' +
+  '</optgroup>' +
+  '<optgroup label="Information">' +
   '<option value="510000">Information</option>' +
+  '</optgroup>' +
+  '<optgroup label="Finance, Insurance &amp; Real Estate">' +
   '<option value="520000">Finance and insurance</option>' +
   '<option value="530000">Real estate</option>' +
+  '</optgroup>' +
+  '<optgroup label="Professional &amp; Technical Services">' +
   '<option value="540000">Professional and technical services</option>' +
   '<option value="541100">— Legal services</option>' +
   '<option value="541200">— Accounting services</option>' +
-  '<option value="541500">— Computer systems design</option>' +
+  '<option value="541213">— Tax preparation services</option>' +
+  '<option value="541214">— Bookkeeping services</option>' +
   '<option value="541300">— Engineering services</option>' +
+  '<option value="541500">— Computer systems design</option>' +
+  '<option value="541512">— IT consulting</option>' +
+  '<option value="541920">— Photography studios</option>' +
+  '<option value="541940">— Veterinary services</option>' +
+  '</optgroup>' +
+  '<optgroup label="Management &amp; Administrative">' +
   '<option value="550000">Management of companies</option>' +
   '<option value="560000">Administrative and waste services</option>' +
+  '<option value="561700">— Landscaping services</option>' +
+  '<option value="561720">— Janitorial services</option>' +
+  '</optgroup>' +
+  '<optgroup label="Education">' +
   '<option value="610000">Educational services</option>' +
+  '<option value="624400">— Child day care services</option>' +
+  '</optgroup>' +
+  '<optgroup label="Health Care &amp; Social Assistance">' +
   '<option value="620000">Health care and social assistance</option>' +
+  '<option value="621100">— Offices of physicians</option>' +
+  '<option value="621200">— Dental offices</option>' +
+  '<option value="621300">— Optometry and health practitioners</option>' +
+  '<option value="621400">— Physical therapy / outpatient care</option>' +
+  '<option value="621600">— Home health care services</option>' +
   '<option value="622000">— Hospitals</option>' +
   '<option value="623000">— Nursing and residential care</option>' +
+  '</optgroup>' +
+  '<optgroup label="Arts, Entertainment &amp; Recreation">' +
   '<option value="710000">Arts, entertainment, recreation</option>' +
+  '</optgroup>' +
+  '<optgroup label="Accommodation &amp; Food Services">' +
   '<option value="720000">Accommodation and food services</option>' +
+  '</optgroup>' +
+  '<optgroup label="Personal &amp; Other Services">' +
   '<option value="810000">Other services</option>' +
-  '<option value="900000">Government</option>';
+  '<option value="811100">— Auto repair and maintenance</option>' +
+  '<option value="812110">— Beauty salons and barbershops</option>' +
+  '<option value="812200">— Funeral homes</option>' +
+  '<option value="812300">— Dry cleaning and laundry</option>' +
+  '</optgroup>' +
+  '<optgroup label="Government">' +
+  '<option value="900000">Government</option>' +
+  '</optgroup>';
 
 function setDates() {
   var now = new Date();
@@ -603,27 +769,14 @@ async function fetchWages() {
 
 document.getElementById('lookupBtn').addEventListener('click', fetchWages);
 
-// ── Blended Occupation (independent per-row search) ────────────────────────
-// Each row carries its OWN industry filter, search term, fetched option list,
-// and selected SOC code — entirely independent of every other row.
+// ── Blended Occupation ─────────────────────────────────────────────────────
 var blendRows = [];
 var BLEND_COLORS = ['#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261','#457b9d'];
 var blendRowSeq = 0;
 
 function newBlendRow() {
   blendRowSeq += 1;
-  return {
-    key: blendRowSeq,
-    customTitle: '',
-    industry: '000000',
-    search: '',
-    options: [],
-    soc: null,
-    pct: 0,
-    hours: 40,
-    status: '',
-    error: ''
-  };
+  return { key: blendRowSeq, customTitle: '', industry: '000000', search: '', options: [], soc: null, pct: 0, hours: 40, status: '', error: '' };
 }
 
 function addBlendRow() {
@@ -685,6 +838,10 @@ function renderBlendRows() {
     var adjMean = occ ? Math.round((occ.latestValue || 0) * (hours / 40)) : 0;
     var adjMedian = occ ? Math.round((occ.median || 0) * (hours / 40)) : 0;
 
+    var industrySelectHtml = '<select id="rowIndustry-' + i + '">' +
+      INDUSTRY_OPTIONS_HTML.replace('value="' + row.industry + '"', 'value="' + row.industry + '" selected') +
+      '</select>';
+
     var occSelectHtml;
     if (row.options.length === 0) {
       occSelectHtml = '<select disabled><option>Search to find occupations</option></select>';
@@ -718,7 +875,6 @@ function renderBlendRows() {
 
     return (
       '<div class="blend-row" style="border-left:3px solid ' + color + ';">' +
-
         '<div class="blend-row-fields">' +
           '<div>' +
             '<label>Custom job title</label>' +
@@ -726,7 +882,7 @@ function renderBlendRows() {
           '</div>' +
           '<div>' +
             '<label>Industry filter</label>' +
-            '<select id="rowIndustry-' + i + '">' + INDUSTRY_OPTIONS_HTML.replace('value="' + row.industry + '"', 'value="' + row.industry + '" selected') + '</select>' +
+            industrySelectHtml +
           '</div>' +
           '<div>' +
             '<label>Search occupation</label>' +
@@ -736,16 +892,12 @@ function renderBlendRows() {
             '<button class="btn-outline btn-small" onclick="searchBlendRow(' + i + ')" style="white-space:nowrap;">Search</button>' +
           '</div>' +
         '</div>' +
-
         statusHtml + errorHtml +
-
         '<div class="blend-row-picker">' +
           '<label>BLS occupation group (drives the wage data)</label>' +
           occSelectHtml +
         '</div>' +
-
         '<div class="row-divider"></div>' +
-
         '<div class="blend-controls">' +
           '<div class="blend-pct-wrap">' +
             '<span style="font-size:12px; color:#666; white-space:nowrap;">Time allocation:</span>' +
@@ -759,16 +911,13 @@ function renderBlendRows() {
           '</div>' +
           removeBtn +
         '</div>' +
-
         wageDetails +
       '</div>'
     );
   }).join('');
 }
 
-function changeBlendTitle(i, val) {
-  blendRows[i].customTitle = val;
-}
+function changeBlendTitle(i, val) { blendRows[i].customTitle = val; }
 
 function changeBlendOcc(i, soc) {
   blendRows[i].soc = soc;
@@ -804,7 +953,6 @@ function calculateBlend() {
     alert('Percentages must total exactly 100% before calculating. Current total: ' + total + '%');
     return;
   }
-
   var missing = blendRows.some(function(r) { return !r.soc; });
   if (missing) {
     alert('Every role needs a BLS occupation selected. Use the Search button on each role first.');
@@ -879,7 +1027,6 @@ function calculateBlend() {
 document.getElementById('addBlendRowBtn').addEventListener('click', addBlendRow);
 document.getElementById('calcBlendBtn').addEventListener('click', calculateBlend);
 
-// Seed two empty rows on load so the blended tab isn't empty
 addBlendRow();
 addBlendRow();
 </script>
