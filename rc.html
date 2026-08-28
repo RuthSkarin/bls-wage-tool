@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RC Report - BLS Wage Tool</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #f5f5f5; color: #1a1a1a; }
+  nav { background: white; border-bottom: 0.5px solid #e0e0e0; padding: 1rem 2rem; display: flex; align-items: center; gap: 2rem; }
+  nav a { text-decoration: none; color: #666; font-size: 14px; }
+  nav a:hover { color: #1a1a1a; }
+  nav a.active { color: #1a1a1a; font-weight: 500; }
+  nav .brand { font-weight: 500; font-size: 16px; color: #1a1a1a; margin-right: auto; }
+  .page { padding: 2rem; max-width: 1000px; margin: 0 auto; }
+  .page-title { font-size: 22px; font-weight: 500; margin-bottom: 0.5rem; }
+  .page-sub { font-size: 14px; color: #666; margin-bottom: 2rem; }
+  .section { background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; border: 0.5px solid #e0e0e0; }
+  .section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 0.5px solid #e0e0e0; }
+  .section-num { font-size: 11px; font-weight: 600; color: white; background: #1a1a1a; border-radius: 4px; padding: 2px 8px; letter-spacing: 0.05em; }
+  .section-title { font-size: 16px; font-weight: 500; }
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-field label { font-size: 12px; color: #666; }
+  .form-field input, .form-field select, .form-field textarea { padding: 8px 12px; border: 0.5px solid #d0d0d0; border-radius: 8px; font-size: 14px; background: white; font-family: inherit; width: 100%; }
+  .form-field textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+  .form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline: none; border-color: #1a1a1a; }
+  .btn-row { display: flex; gap: 8px; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
+  button { padding: 8px 20px; background: #1a1a1a; color: white; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; }
+  button:hover { background: #333; }
+  .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; }
+  .btn-outline:hover { background: #f5f5f5; }
+  .btn-green { background: #2a9d8f; }
+  .btn-green:hover { background: #21867a; }
+  .hidden { display: none; }
+  .error { color: #c0392b; font-size: 13px; margin-top: 0.5rem; }
+  .success { color: #27ae60; font-size: 13px; margin-top: 0.5rem; }
+  .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 1rem 0; }
+  .metric { background: #f5f5f5; border-radius: 8px; padding: 1rem; }
+  .metric.dark { background: #1a1a1a; color: white; }
+  .metric-label { font-size: 12px; color: #666; margin-bottom: 4px; }
+  .metric.dark .metric-label { color: rgba(255,255,255,0.6); }
+  .metric-value { font-size: 20px; font-weight: 500; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th { text-align: left; padding: 8px 12px; color: #666; font-weight: 500; border-bottom: 0.5px solid #e0e0e0; font-size: 13px; }
+  td { padding: 10px 12px; border-bottom: 0.5px solid #f0f0f0; font-size: 13px; }
+  .source-box { background: #f9f9f9; border: 0.5px solid #e0e0e0; border-radius: 8px; padding: 1rem; margin-top: 1rem; font-size: 12px; color: #666; line-height: 1.6; }
+  .source-box strong { color: #1a1a1a; }
+  .positioning-wrap { background: #f5f5f5; border-radius: 10px; padding: 1.25rem; margin: 1rem 0; }
+  .positioning-bar { position: relative; height: 12px; background: linear-gradient(to right, #e0e0e0, #1a1a1a); border-radius: 6px; margin: 1.5rem 0 2rem; }
+  .pos-marker { position: absolute; top: -5px; width: 22px; height: 22px; background: #e63946; border: 2px solid white; border-radius: 50%; transform: translateX(-50%); box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+  .pos-marker-label { position: absolute; top: 22px; font-size: 11px; color: #e63946; font-weight: 600; transform: translateX(-50%); white-space: nowrap; }
+  .pos-labels { display: flex; justify-content: space-between; font-size: 11px; color: #999; }
+  .tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; margin-top: 0.75rem; }
+  .tag-above { background: #fdecea; color: #c0392b; }
+  .tag-below { background: #eaf7f0; color: #27ae60; }
+  .tag-within { background: #eef4fb; color: #2980b9; }
+  .conclusion-box { background: #1a1a1a; color: white; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+  .conclusion-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; margin-bottom: 0.5rem; }
+  .cl { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px; }
+  .cv { font-size: 22px; font-weight: 500; }
+  .cv.small { font-size: 16px; }
+  .chart-container { position: relative; height: 300px; margin-top: 1rem; }
+  .data-banner { background: #eef4fb; border: 0.5px solid #a8c4e0; border-radius: 8px; padding: 0.75rem 1rem; font-size: 13px; color: #2980b9; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; }
+  .data-banner.missing { background: #fff8e1; border-color: #ffc107; color: #856404; }
+
+  /* Letterhead print only */
+  .letterhead { display: none; }
+  @media print {
+    nav, .no-print { display: none !important; }
+    body { background: white; font-size: 12px; }
+    .page { padding: 0; max-width: 100%; }
+    .page-title, .page-sub { display: none; }
+    .letterhead { display: block; border-bottom: 2px solid #1a1a1a; padding-bottom: 1rem; margin-bottom: 1.5rem; }
+    .lh-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .lh-firm { font-size: 18px; font-weight: 700; }
+    .lh-sub { font-size: 12px; color: #666; margin-top: 2px; }
+    .lh-meta { text-align: right; font-size: 12px; color: #666; line-height: 1.6; }
+    .lh-report-title { font-size: 14px; font-weight: 600; margin-top: 0.75rem; }
+    .section { border: 0.5px solid #ccc; border-radius: 0; margin-bottom: 0.75rem; padding: 1rem; break-inside: avoid; }
+    .metric { background: #f5f5f5 !important; -webkit-print-color-adjust: exact; }
+    .metric.dark { background: #1a1a1a !important; color: white !important; -webkit-print-color-adjust: exact; }
+    .conclusion-box { background: #1a1a1a !important; color: white !important; -webkit-print-color-adjust: exact; }
+    .source-box { background: #f9f9f9 !important; -webkit-print-color-adjust: exact; }
+    .positioning-bar { -webkit-print-color-adjust: exact; }
+    .data-banner { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="no-print">
+  <span class="brand">BLS Wage Tool</span>
+  <a href="index.html">Home</a>
+  <a href="wages.html">Wage Lookup</a>
+  <a href="trends.html">Wage Trends</a>
+  <a href="rc.html" class="active">RC Report</a>
+</nav>
+
+<div class="page">
+
+  <!-- Print letterhead -->
+  <div class="letterhead">
+    <div class="lh-top">
+      <div>
+        <div class="lh-firm">AMP Business Valuations</div>
+        <div class="lh-sub">Reasonable Compensation Analysis</div>
+      </div>
+      <div class="lh-meta">
+        <div id="lhDate"></div>
+        <div id="lhAnalyst"></div>
+      </div>
+    </div>
+    <div class="lh-report-title">Reasonable Compensation Report — <span id="lhSubject"></span></div>
+  </div>
+
+  <div class="page-title no-print">Reasonable Compensation Report</div>
+  <p class="page-sub no-print">Fill in sections 1 and 2, then load your BLS data from the Wage Lookup and Trends pages.</p>
+
+  <!-- Section 1: Background -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">Background</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Company name</label>
+        <input type="text" id="companyName" placeholder="ABC Plumbing LLC" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>State</label>
+        <input type="text" id="companyState" placeholder="Colorado" />
+      </div>
+      <div class="form-field">
+        <label>Industry</label>
+        <input type="text" id="companyIndustry" placeholder="Construction" />
+      </div>
+      <div class="form-field">
+        <label>Valuation date</label>
+        <input type="date" id="valuationDate" />
+      </div>
+      <div class="form-field">
+        <label>Analyst name</label>
+        <input type="text" id="analystName" placeholder="Jane Smith, CVA" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>Report date</label>
+        <input type="date" id="reportDate" />
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:16px;">
+      <label>Company description</label>
+      <textarea id="companyDesc" placeholder="Briefly describe the company — type of business, years in operation, number of employees, revenue range, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 2: Subject Individual -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">Subject individual</span>
+    </div>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Individual name</label>
+        <input type="text" id="subjectName" placeholder="John Doe" oninput="updateLetterhead()" />
+      </div>
+      <div class="form-field">
+        <label>Title / role</label>
+        <input type="text" id="subjectTitle" placeholder="Owner / General Manager" />
+      </div>
+      <div class="form-field">
+        <label>Ownership interest (%)</label>
+        <input type="number" id="subjectOwnership" placeholder="100" min="0" max="100" />
+      </div>
+      <div class="form-field">
+        <label>Current annual compensation ($)</label>
+        <input type="number" id="subjectSalary" placeholder="120000" oninput="refreshPositioning()" />
+      </div>
+      <div class="form-field">
+        <label>Hours per week</label>
+        <input type="number" id="subjectHours" placeholder="50" min="1" max="80" />
+      </div>
+      <div class="form-field">
+        <label>Years in role</label>
+        <input type="number" id="subjectYears" placeholder="12" min="0" />
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:16px;">
+      <label>Role description</label>
+      <textarea id="subjectDesc" placeholder="Describe this individual's duties and responsibilities — management, sales, operations, bookkeeping, field work, etc."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 3: BLS Wage Data -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">BLS wage data</span>
+    </div>
+
+    <div id="wageBanner" class="data-banner missing no-print">
+      ⚠ No wage data loaded yet. Go to <a href="wages.html" style="color:inherit; font-weight:500;">Wage Lookup</a>, run a search, then click <strong>Send to RC Report</strong>.
+    </div>
+
+    <div id="wageDataSection" class="hidden">
+      <div style="font-size:13px; color:#666; margin-bottom:1rem;" id="wageDataDesc"></div>
+      <div class="metrics" id="wageMetrics"></div>
+      <div style="overflow-x:auto; margin-top:1rem;">
+        <table>
+          <thead>
+            <tr>
+              <th>Occupation</th>
+              <th style="text-align:right;">Weight</th>
+              <th style="text-align:right;">Mean wage</th>
+              <th style="text-align:right;">Median</th>
+              <th style="text-align:right;">10th pct</th>
+              <th style="text-align:right;">25th pct</th>
+              <th style="text-align:right;">75th pct</th>
+              <th style="text-align:right;">90th pct</th>
+            </tr>
+          </thead>
+          <tbody id="wageTableBody"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:1.25rem;">
+        <div class="form-field">
+          <label>Methodology notes</label>
+          <textarea id="methodologyNotes" placeholder="Describe the data source, geographic market, industry selection, and any adjustments made..."></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Subject Positioning -->
+  <div class="section hidden" id="section4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">Subject salary positioning</span>
+    </div>
+    <div class="positioning-wrap">
+      <div style="font-size:13px; color:#666; margin-bottom:0.5rem;" id="posDesc"></div>
+      <div class="positioning-bar">
+        <div class="pos-marker" id="posMarker" style="left:50%;"></div>
+        <div class="pos-marker-label" id="posMarkerLabel" style="left:50%;">Subject</div>
+      </div>
+      <div class="pos-labels">
+        <span>10th pct</span><span>25th pct</span><span>Median</span><span>75th pct</span><span>90th pct</span>
+      </div>
+      <div id="posTag"></div>
+    </div>
+    <div class="form-field" style="margin-top:1rem;">
+      <label>Analyst narrative — positioning</label>
+      <textarea id="positioningNarrative" style="min-height:100px;" placeholder="Describe why the subject's compensation falls where it does relative to the market. Consider duties, experience, education, company size, and geography..."></textarea>
+    </div>
+  </div>
+
+  <!-- Section 5: Wage Trends -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <span class="section-title">Wage trends</span>
+    </div>
+
+    <div id="trendBanner" class="data-banner missing no-print">
+      ⚠ No trend data loaded yet. Go to <a href="trends.html" style="color:inherit; font-weight:500;">Wage Trends</a>, load trends, then click <strong>Send to RC Report</strong>.
+    </div>
+
+    <div id="trendDataSection" class="hidden">
+      <div style="font-size:13px; color:#666; margin-bottom:0.5rem;" id="trendDesc"></div>
+      <div class="chart-container">
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6: Conclusion -->
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">Conclusion</span>
+    </div>
+
+    <div class="form-grid" style="margin-bottom:1rem;">
+      <div class="form-field">
+        <label>Concluded reasonable compensation ($)</label>
+        <input type="number" id="concludedWage" placeholder="85000" oninput="updateConclusion()" />
+      </div>
+      <div class="form-field">
+        <label>Support range — low ($)</label>
+        <input type="number" id="rangeLow" placeholder="75000" oninput="updateConclusion()" />
+      </div>
+      <div class="form-field">
+        <label>Support range — high ($)</label>
+        <input type="number" id="rangeHigh" placeholder="95000" oninput="updateConclusion()" />
+      </div>
+    </div>
+
+    <div class="conclusion-box">
+      <div class="conclusion-grid">
+        <div>
+          <div class="cl">Concluded reasonable compensation</div>
+          <div class="cv" id="cvConcluded">—</div>
+        </div>
+        <div>
+          <div class="cl">Support range</div>
+          <div class="cv small" id="cvRange">—</div>
+        </div>
+        <div>
+          <div class="cl">Subject current compensation</div>
+          <div class="cv small" id="cvSubject">—</div>
+        </div>
+        <div>
+          <div class="cl">Variance (subject minus concluded)</div>
+          <div class="cv small" id="cvVariance">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field" style="margin-top:1rem;">
+      <label>Conclusion narrative</label>
+      <textarea id="conclusionNarrative" style="min-height:140px;" placeholder="State your conclusion as to reasonable compensation. Include the basis for your concluded figure, how it relates to the market data, the support range, and any caveats or qualifications..."></textarea>
+    </div>
+
+    <div class="source-box" style="margin-top:1.5rem;">
+      <strong>Data Source:</strong> U.S. Bureau of Labor Statistics, Occupational Employment and Wage Statistics (OEWS) Program<br>
+      <strong>Survey:</strong> May 2024 National Occupational Employment and Wage Estimates, United States<br>
+      <strong>Retrieved:</strong> <span id="rcRetrievedDate"></span><br>
+      <strong>Reference:</strong> U.S. Bureau of Labor Statistics. Occupational Employment and Wage Statistics. Washington, D.C.: U.S. Department of Labor. https://www.bls.gov/oes/<br>
+      <strong>Limitation:</strong> BLS OES data represents broad occupational categories and statewide averages. The analyst should consider the specific duties, qualifications, and market conditions applicable to the subject individual when concluding reasonable compensation. This report is prepared for internal valuation purposes only.
+    </div>
+
+    <div class="btn-row no-print" style="margin-top:1.5rem;">
+      <button onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+var wageData = null;
+var trendData = null;
+var trendChartInst = null;
+
+var COLORS = [
+  '#1a1a1a','#e63946','#2a9d8f','#e9c46a','#f4a261',
+  '#457b9d','#6a4c93','#43aa8b','#f77f00','#4cc9f0',
+  '#e76f51','#264653','#a8dadc','#c77dff','#80b918',
+  '#fb8500','#023e8a','#d62828','#606c38','#bc6c25',
+  '#48cae4','#9b2226'
+];
+
+function fmt(val) {
+  if (!val && val !== 0) return '—';
+  return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+}
+
+function fmtVariance(val) {
+  if (!val && val !== 0) return '—';
+  var sign = val >= 0 ? '+' : '-';
+  return sign + '$' + Math.abs(Math.round(val)).toLocaleString('en-US');
+}
+
+function setDates() {
+  var now = new Date();
+  var formatted = now.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+  document.getElementById('rcRetrievedDate').textContent = formatted;
+  document.getElementById('lhDate').textContent = formatted;
+  document.getElementById('reportDate').value = now.toISOString().split('T')[0];
+}
+
+setDates();
+
+function updateLetterhead() {
+  var subject = document.getElementById('subjectName').value || '';
+  var company = document.getElementById('companyName').value || '';
+  var analyst = document.getElementById('analystName').value || '';
+  document.getElementById('lhSubject').textContent = subject || company || 'Subject Individual';
+  document.getElementById('lhAnalyst').textContent = analyst;
+}
+
+// ── Load wage data from sessionStorage ────────────────────────────────────
+function loadWageData() {
+  var raw = sessionStorage.getItem('rcWageData');
+  if (!raw) {
+    document.getElementById('wageBanner').className = 'data-banner missing no-print';
+    document.getElementById('wageBanner').innerHTML = '⚠ No wage data found. Go to <a href="wages.html" style="color:inherit; font-weight:500;">Wage Lookup</a>, run a search, then click <strong>Send to RC Report</strong>.';
+    return;
+  }
+
+  try {
+    wageData = JSON.parse(raw);
+  } catch(e) {
+    return;
+  }
+
+  document.getElementById('wageBanner').className = 'data-banner no-print';
+  document.getElementById('wageBanner').innerHTML = '✓ Wage data loaded — ' + (wageData.label || 'BLS OES May 2024');
+
+  document.getElementById('wageDataDesc').textContent = wageData.desc || '';
+
+  document.getElementById('wageMetrics').innerHTML =
+    '<div class="metric dark"><div class="metric-label">Mean wage</div><div class="metric-value">' + fmt(wageData.mean) + '</div></div>' +
+    '<div class="metric dark"><div class="metric-label">Median wage</div><div class="metric-value">' + fmt(wageData.median) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">10th percentile</div><div class="metric-value">' + fmt(wageData.p10) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">25th percentile</div><div class="metric-value">' + fmt(wageData.p25) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">75th percentile</div><div class="metric-value">' + fmt(wageData.p75) + '</div></div>' +
+    '<div class="metric"><div class="metric-label">90th percentile</div><div class="metric-value">' + fmt(wageData.p90) + '</div></div>';
+
+  document.getElementById('wageTableBody').innerHTML = (wageData.rows || []).map(function(r) {
+    return '<tr>' +
+      '<td>' + r.title + '</td>' +
+      '<td style="text-align:right;">' + (r.weight || 100) + '%</td>' +
+      '<td style="text-align:right; font-weight:500;">' + fmt(r.mean) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.median) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p10) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p25) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p75) + '</td>' +
+      '<td style="text-align:right;">' + fmt(r.p90) + '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('wageDataSection').classList.remove('hidden');
+  document.getElementById('section4').classList.remove('hidden');
+  refreshPositioning();
+}
+
+// ── Load trend data from sessionStorage ───────────────────────────────────
+function loadTrendData() {
+  var raw = sessionStorage.getItem('rcTrendData');
+  if (!raw) {
+    document.getElementById('trendBanner').className = 'data-banner missing no-print';
+    document.getElementById('trendBanner').innerHTML = '⚠ No trend data found. Go to <a href="trends.html" style="color:inherit; font-weight:500;">Wage Trends</a>, load trends, then click <strong>Send to RC Report</strong>.';
+    return;
+  }
+
+  try {
+    trendData = JSON.parse(raw);
+  } catch(e) { return; }
+
+  document.getElementById('trendBanner').className = 'data-banner no-print';
+  document.getElementById('trendBanner').innerHTML = '✓ Trend data loaded — ' + (trendData.label || 'BLS OES 2019–2024');
+  document.getElementById('trendDesc').textContent = trendData.desc || '';
+
+  renderTrendChart();
+  document.getElementById('trendDataSection').classList.remove('hidden');
+}
+
+function renderTrendChart() {
+  if (!trendData) return;
+  if (trendChartInst) { trendChartInst.destroy(); trendChartInst = null; }
+
+  var years = trendData.years || [2019,2020,2021,2022,2023,2024];
+  var occs = trendData.occupations || [];
+
+  trendChartInst = new Chart(document.getElementById('trendChart'), {
+    type: 'line',
+    data: {
+      labels: years,
+      datasets: occs.map(function(o, i) {
+        return {
+          label: o.title,
+          data: o.wages,
+          borderColor: COLORS[i % COLORS.length],
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 3,
+          tension: 0.3
+        };
+      })
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: function(ctx) {
+              return ctx.dataset.label + ': $' + Number(ctx.parsed.y).toLocaleString('en-US', { maximumFractionDigits: 0 });
+            }
+          }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Year' } },
+        y: {
+          title: { display: true, text: 'Mean Annual Wage (USD)' },
+          ticks: { callback: function(v) { return '$' + (v/1000).toFixed(0) + 'K'; } }
+        }
+      }
+    }
+  });
+}
+
+// ── Positioning ────────────────────────────────────────────────────────────
+function refreshPositioning() {
+  if (!wageData) return;
+  var salary = parseFloat(document.getElementById('subjectSalary').value) || 0;
+  var name = document.getElementById('subjectName').value || 'Subject individual';
+
+  document.getElementById('posDesc').textContent =
+    name + ' current compensation of ' + fmt(salary) +
+    ' compared to market range of ' + fmt(wageData.p10) + ' (10th pct) to ' + fmt(wageData.p90) + ' (90th pct).';
+
+  var min = wageData.p10;
+  var max = wageData.p90;
+  var range = max - min;
+  var pct = range > 0 ? Math.max(2, Math.min(98, ((salary - min) / range) * 100)) : 50;
+
+  document.getElementById('posMarker').style.left = pct + '%';
+  document.getElementById('posMarkerLabel').style.left = pct + '%';
+
+  var tag = '';
+  if (salary < wageData.p25) {
+    tag = '<span class="tag tag-below">Below 25th percentile</span>';
+  } else if (salary <= wageData.p75) {
+    tag = '<span class="tag tag-within">Within interquartile range (25th–75th pct)</span>';
+  } else if (salary <= wageData.p90) {
+    tag = '<span class="tag tag-above">Above 75th percentile</span>';
+  } else {
+    tag = '<span class="tag tag-above">Above 90th percentile</span>';
+  }
+  document.getElementById('posTag').innerHTML = tag;
+  updateConclusion();
+}
+
+// ── Conclusion ─────────────────────────────────────────────────────────────
+function updateConclusion() {
+  var concluded = parseFloat(document.getElementById('concludedWage').value) || 0;
+  var low = parseFloat(document.getElementById('rangeLow').value) || 0;
+  var high = parseFloat(document.getElementById('rangeHigh').value) || 0;
+  var subject = parseFloat(document.getElementById('subjectSalary').value) || 0;
+  var variance = subject - concluded;
+
+  document.getElementById('cvConcluded').textContent = concluded ? fmt(concluded) : '—';
+  document.getElementById('cvRange').textContent = (low && high) ? fmt(low) + ' – ' + fmt(high) : '—';
+  document.getElementById('cvSubject').textContent = subject ? fmt(subject) : '—';
+  document.getElementById('cvVariance').textContent = (concluded && subject) ? fmtVariance(variance) : '—';
+}
+
+// ── Auto-load on page open ─────────────────────────────────────────────────
+window.addEventListener('load', function() {
+  loadWageData();
+  loadTrendData();
+});
+
+document.getElementById('subjectName').addEventListener('input', function() {
+  updateLetterhead();
+  if (wageData) refreshPositioning();
+});
+document.getElementById('subjectSalary').addEventListener('input', refreshPositioning);
+document.getElementById('concludedWage').addEventListener('input', updateConclusion);
+document.getElementById('rangeLow').addEventListener('input', updateConclusion);
+document.getElementById('rangeHigh').addEventListener('input', updateConclusion);
+document.getElementById('analystName').addEventListener('input', updateLetterhead);
+document.getElementById('companyName').addEventListener('input', updateLetterhead);
+</script>
+</body>
+</html>
