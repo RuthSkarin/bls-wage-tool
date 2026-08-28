@@ -25,6 +25,8 @@
   button:hover { background: #333; }
   .btn-outline { background: white; color: #1a1a1a; border: 0.5px solid #d0d0d0; }
   .btn-outline:hover { background: #f5f5f5; }
+  .btn-rc { background: white; color: #2a9d8f; border: 0.5px solid #2a9d8f; }
+  .btn-rc:hover { background: #f0faf9; }
   .error { color: #c0392b; font-size: 14px; padding: 0.5rem 0; }
   .status { color: #666; font-size: 14px; padding: 0.5rem 0; }
   .hidden { display: none; }
@@ -143,6 +145,7 @@
     <div class="btn-row">
       <button id="loadTrendsBtn">Load trends</button>
       <button class="btn-outline" onclick="window.print()">Print / Save as PDF</button>
+      <button class="btn-rc hidden" id="sendTrendBtn" onclick="sendTrendDataToRC()">Send to RC Report →</button>
     </div>
     <div id="errorMsg" class="error hidden"></div>
     <div id="statusMsg" class="status hidden"></div>
@@ -212,6 +215,7 @@ async function loadTrends() {
 
   document.getElementById('errorMsg').classList.add('hidden');
   document.getElementById('trendsSection').classList.add('hidden');
+  document.getElementById('sendTrendBtn').classList.add('hidden');
   document.getElementById('statusMsg').classList.remove('hidden');
   document.getElementById('statusMsg').textContent = 'Loading trend data...';
 
@@ -233,6 +237,7 @@ async function loadTrends() {
     renderToggles();
     renderCharts();
     document.getElementById('trendsSection').classList.remove('hidden');
+    document.getElementById('sendTrendBtn').classList.remove('hidden');
 
   } catch(e) {
     document.getElementById('statusMsg').classList.add('hidden');
@@ -265,14 +270,12 @@ function renderCharts() {
   var years = trendDataCache.years || [2019,2020,2021,2022,2023,2024];
   var occs = allOccupations.filter(function(o) { return activeOccs.includes(o.soc); });
 
-  // Destroy existing charts
   if (lineChartInst) { lineChartInst.destroy(); lineChartInst = null; }
   if (barChartInst) { barChartInst.destroy(); barChartInst = null; }
   if (growthChartInst) { growthChartInst.destroy(); growthChartInst = null; }
 
   var colorIdx = allOccupations.map(function(o) { return o.soc; });
 
-  // Line chart — wage trends over time
   lineChartInst = new Chart(document.getElementById('lineChart'), {
     type: 'line',
     data: {
@@ -295,11 +298,7 @@ function renderCharts() {
       maintainAspectRatio: false,
       plugins: {
         legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
-        tooltip: {
-          callbacks: {
-            label: function(ctx) { return ctx.dataset.label + ': ' + fmt(ctx.parsed.y); }
-          }
-        }
+        tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + fmt(ctx.parsed.y); } } }
       },
       scales: {
         x: { title: { display: true, text: 'Year' } },
@@ -308,7 +307,6 @@ function renderCharts() {
     }
   });
 
-  // Bar chart — most recent year comparison
   var latestIdx = years.length - 1;
   barChartInst = new Chart(document.getElementById('barChart'), {
     type: 'bar',
@@ -335,7 +333,6 @@ function renderCharts() {
     }
   });
 
-  // Growth chart — % change 2019 to 2024
   growthChartInst = new Chart(document.getElementById('growthChart'), {
     type: 'bar',
     data: {
@@ -365,6 +362,30 @@ function renderCharts() {
       }
     }
   });
+}
+
+function sendTrendDataToRC() {
+  if (!trendDataCache) {
+    alert('No trend data to send. Please load trends first.');
+    return;
+  }
+
+  var stateEl = document.getElementById('stateSelect');
+  var stateText = stateEl.options[stateEl.selectedIndex].text;
+  var industryEl = document.getElementById('industrySelect');
+  var industryText = industryEl.options[industryEl.selectedIndex].text;
+
+  var payload = {
+    label: 'Wage trends — ' + stateText + ' — 2019–2024',
+    desc: 'BLS OES wage trend data for ' + stateText + ', ' + industryText + ' — 2019 to 2024.',
+    years: trendDataCache.years,
+    occupations: allOccupations.filter(function(o) {
+      return activeOccs.includes(o.soc);
+    })
+  };
+
+  sessionStorage.setItem('rcTrendData', JSON.stringify(payload));
+  window.location.href = 'rc.html';
 }
 
 document.getElementById('loadTrendsBtn').addEventListener('click', loadTrends);
